@@ -1,11 +1,24 @@
-import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+
+const SOLO_ENTRENADOR = ['/clientes', '/grupos', '/ejercicios', '/rutinas'];
+const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso'];
 
 export default function Layout() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   if (!token || !user) return <Navigate to="/login" />;
+
+  const esEntrenador = user.rol === 'entrenador';
+
+  if (!esEntrenador && SOLO_ENTRENADOR.includes(pathname)) {
+    return <Navigate to="/mis-rutinas" />;
+  }
+  if (esEntrenador && SOLO_CLIENTE.includes(pathname)) {
+    return <Navigate to="/panel" />;
+  }
 
   const salir = () => {
     localStorage.removeItem('token');
@@ -17,19 +30,24 @@ export default function Layout() {
     <div className="layout">
       <aside className="sidebar">
         <h2>FitCoach</h2>
-        <NavLink to="/panel">Inicio</NavLink>
-        <NavLink to="/clientes">Clientes</NavLink>
-        <NavLink to="/grupos">Grupos</NavLink>
-        <NavLink to="/ejercicios">Ejercicios</NavLink>
-        <NavLink to="/rutinas">Rutinas</NavLink>
+        {esEntrenador ? (
+          <>
+            <NavLink to="/panel">Inicio</NavLink>
+            <NavLink to="/clientes">Clientes</NavLink>
+            <NavLink to="/grupos">Grupos</NavLink>
+            <NavLink to="/ejercicios">Ejercicios</NavLink>
+            <NavLink to="/rutinas">Rutinas</NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink to="/mis-rutinas">Mis rutinas</NavLink>
+            <NavLink to="/mi-progreso">Mi progreso</NavLink>
+          </>
+        )}
         <button className="salir" onClick={salir}>Cerrar sesión</button>
       </aside>
       <main className="contenido">
-        {user.rol === 'entrenador' ? (
-          <Outlet />
-        ) : (
-          <p>Por ahora este panel es solo para entrenadores. La vista de clientes viene más adelante.</p>
-        )}
+        <Outlet />
       </main>
     </div>
   );

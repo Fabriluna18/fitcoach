@@ -77,3 +77,6 @@ body {
 .tabla { width: 100%; border-collapse: collapse; margin-top: 12px; }
 .tabla th, .tabla td { text-align: left; padding: 8px; border-bottom: 1px solid #eef0f6; }
 .tabla th { color: #6b7280; font-weight: 600; font-size: 0.9rem; }
+.ok { color: #15803d; margin: 0 0 12px; }
+.comentario { width: 100%; padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; font-family: inherit; margin-top: 12px; resize: vertical; }
+.fila-ejercicio .nombre { flex: 2; min-width: 180px; }
