@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
+import { Link } from 'react-router-dom';
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -67,9 +68,12 @@ export default function Clientes() {
                   <strong>{c.nombre}</strong>
                   <div className="sub">{c.email}{c.activo ? '' : ' · De baja'}</div>
                 </div>
-                <button className="btn-chico" onClick={() => cambiarEstado(c)}>
-                  {c.activo ? 'Dar de baja' : 'Reactivar'}
-                </button>
+                <div className="acciones">
+                  <Link to={`/clientes/${c.id}/progreso`} className="btn-chico" style={{ textDecoration: 'none' }}>Ver progreso</Link>
+                  <button className="btn-chico" onClick={() => cambiarEstado(c)}>
+                    {c.activo ? 'Dar de baja' : 'Reactivar'}
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

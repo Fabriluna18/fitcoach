@@ -1,18 +1,26 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
+import EvolucionChart from '../components/EvolucionChart';
 
 export default function MiProgreso() {
   const [historial, setHistorial] = useState([]);
+  const [evolucion, setEvolucion] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
     apiFetch('/me/history').then(setHistorial).catch((err) => setError(err.message));
+    apiFetch('/me/progress').then(setEvolucion).catch((err) => setError(err.message));
   }, []);
 
   return (
     <>
       <h1>Mi progreso</h1>
       {error && <p className="error">{error}</p>}
+
+      <div className="card">
+        <h3>Evolución de peso</h3>
+        <EvolucionChart datos={evolucion} />
+      </div>
 
       <div className="card">
         <h3>Últimos registros ({historial.length})</h3>

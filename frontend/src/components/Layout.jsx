@@ -13,7 +13,7 @@ export default function Layout() {
 
   const esEntrenador = user.rol === 'entrenador';
 
-  if (!esEntrenador && SOLO_ENTRENADOR.includes(pathname)) {
+  if (!esEntrenador && SOLO_ENTRENADOR.some((p) => pathname.startsWith(p))) {
     return <Navigate to="/mis-rutinas" />;
   }
   if (esEntrenador && SOLO_CLIENTE.includes(pathname)) {
