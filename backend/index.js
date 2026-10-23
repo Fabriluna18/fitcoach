@@ -17,6 +17,12 @@ app.use('/api/clients', clientRoutes);
 const groupRoutes = require('./routes/groups');
 app.use('/api/groups', groupRoutes);
 
+const exerciseRoutes = require('./routes/exercises');
+app.use('/api/exercises', exerciseRoutes);
+
+const routineRoutes = require('./routes/routines');
+app.use('/api/routines', routineRoutes);
+
 app.get('/', (req, res) => {
   res.json({ mensaje: 'API de FitCoach funcionando' });
 });
