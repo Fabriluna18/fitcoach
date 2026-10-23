@@ -6,9 +6,12 @@ const filaVacia = { exercise_id: '', series: '4', repeticiones: '8-10', peso_sug
 export default function Rutinas() {
   const [rutinas, setRutinas] = useState([]);
   const [clientes, setClientes] = useState([]);
+  const [grupos, setGrupos] = useState([]);
   const [ejercicios, setEjercicios] = useState([]);
   const [nombre, setNombre] = useState('');
+  const [destino, setDestino] = useState('cliente');
   const [userId, setUserId] = useState('');
+  const [groupId, setGroupId] = useState('');
   const [filas, setFilas] = useState([{ ...filaVacia }]);
   const [detalle, setDetalle] = useState(null);
   const [error, setError] = useState('');
@@ -19,6 +22,7 @@ export default function Rutinas() {
   useEffect(() => {
     apiFetch('/routines').then(setRutinas).catch((err) => setError(err.message));
     apiFetch('/clients').then(setClientes).catch((err) => setError(err.message));
+    apiFetch('/groups').then(setGrupos).catch((err) => setError(err.message));
     apiFetch('/exercises').then(setEjercicios).catch((err) => setError(err.message));
   }, []);
 
@@ -39,7 +43,6 @@ export default function Rutinas() {
 
     const cuerpo = {
       nombre,
-      user_id: Number(userId),
       ejercicios: filas.map((f) => ({
         exercise_id: Number(f.exercise_id),
         series: Number(f.series),
@@ -47,11 +50,14 @@ export default function Rutinas() {
         peso_sugerido: f.peso_sugerido ? Number(f.peso_sugerido) : null,
       })),
     };
+    if (destino === 'cliente') cuerpo.user_id = Number(userId);
+    else cuerpo.group_id = Number(groupId);
 
     try {
       await apiFetch('/routines', { method: 'POST', body: JSON.stringify(cuerpo) });
       setNombre('');
       setUserId('');
+      setGroupId('');
       setFilas([{ ...filaVacia }]);
       cargarRutinas();
     } catch (err) {
@@ -87,19 +93,32 @@ export default function Rutinas() {
       {error && <p className="error">{error}</p>}
 
       <div className="card">
-        <h3>Nueva rutina individual</h3>
+        <h3>Nueva rutina</h3>
         {(clientesActivos.length === 0 || ejercicios.length === 0) && (
           <p className="sub">Para armar una rutina necesitás al menos un cliente activo y un ejercicio cargado.</p>
         )}
         <form onSubmit={crear}>
           <div className="fila-form" style={{ marginBottom: 12 }}>
             <input placeholder="Nombre de la rutina" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-            <select value={userId} onChange={(e) => setUserId(e.target.value)} required>
-              <option value="">Elegí un cliente...</option>
-              {clientesActivos.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
+            <select value={destino} onChange={(e) => setDestino(e.target.value)}>
+              <option value="cliente">Para un cliente</option>
+              <option value="grupo">Para un grupo</option>
             </select>
+            {destino === 'cliente' ? (
+              <select value={userId} onChange={(e) => setUserId(e.target.value)} required>
+                <option value="">Elegí un cliente...</option>
+                {clientesActivos.map((c) => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            ) : (
+              <select value={groupId} onChange={(e) => setGroupId(e.target.value)} required>
+                <option value="">Elegí un grupo...</option>
+                {grupos.map((g) => (
+                  <option key={g.id} value={g.id}>{g.nombre} ({g.miembros})</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {filas.map((f, i) => (
@@ -152,7 +171,7 @@ export default function Rutinas() {
 
       {detalle && (
         <div className="card">
-          <h3>{detalle.nombre}{detalle.cliente ? ` · ${detalle.cliente}` : ''}</h3>
+          <h3>{detalle.nombre} · {detalle.cliente || `Grupo ${detalle.grupo}`}</h3>
           <table className="tabla">
             <thead>
               <tr><th>Ejercicio</th><th>Músculo</th><th>Series</th><th>Reps</th><th>Peso sugerido</th></tr>
