@@ -5,6 +5,8 @@ import Panel from './pages/Panel';
 import Clientes from './pages/Clientes';
 import Grupos from './pages/Grupos';
 import Layout from './components/Layout';
+import Ejercicios from './pages/Ejercicios';
+import Rutinas from './pages/Rutinas';
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
           <Route path="/panel" element={<Panel />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/grupos" element={<Grupos />} />
+          <Route path="/ejercicios" element={<Ejercicios />} />
+          <Route path="/rutinas" element={<Rutinas />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

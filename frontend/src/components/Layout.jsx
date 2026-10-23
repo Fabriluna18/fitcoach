@@ -20,6 +20,8 @@ export default function Layout() {
         <NavLink to="/panel">Inicio</NavLink>
         <NavLink to="/clientes">Clientes</NavLink>
         <NavLink to="/grupos">Grupos</NavLink>
+        <NavLink to="/ejercicios">Ejercicios</NavLink>
+        <NavLink to="/rutinas">Rutinas</NavLink>
         <button className="salir" onClick={salir}>Cerrar sesión</button>
       </aside>
       <main className="contenido">
