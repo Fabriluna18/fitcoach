@@ -35,9 +35,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const rutina = await pool.query(
-      `SELECT r.id, r.nombre, r.user_id, u.nombre AS cliente
+      `SELECT r.id, r.nombre, r.user_id, u.nombre AS cliente,
+              r.group_id, g.nombre AS grupo
        FROM routines r
        LEFT JOIN users u ON u.id = r.user_id
+       LEFT JOIN groups g ON g.id = r.group_id
        WHERE r.id = $1 AND r.entrenador_id = $2`,
       [req.params.id, req.user.id]
     );
@@ -62,12 +64,15 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Crear una rutina individual con sus ejercicios
+// Crear una rutina para un cliente O para un grupo
 router.post('/', async (req, res) => {
-  const { nombre, user_id, ejercicios } = req.body;
+  const { nombre, user_id, group_id, ejercicios } = req.body;
 
-  if (!nombre || !user_id || !Array.isArray(ejercicios) || ejercicios.length === 0) {
-    return res.status(400).json({ error: 'Faltan nombre, cliente o ejercicios' });
+  if (!nombre || !Array.isArray(ejercicios) || ejercicios.length === 0) {
+    return res.status(400).json({ error: 'Faltan nombre o ejercicios' });
+  }
+  if ((user_id && group_id) || (!user_id && !group_id)) {
+    return res.status(400).json({ error: 'La rutina es para un cliente o para un grupo, no ambos ni ninguno' });
   }
   for (const e of ejercicios) {
     if (!e.exercise_id || !e.series || !e.repeticiones) {
@@ -77,13 +82,24 @@ router.post('/', async (req, res) => {
 
   const client = await pool.connect();
   try {
-    // El cliente tiene que ser mío
-    const cliente = await client.query(
-      "SELECT id FROM users WHERE id = $1 AND entrenador_id = $2 AND rol = 'cliente'",
-      [user_id, req.user.id]
-    );
-    if (cliente.rows.length === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
+    if (user_id) {
+      // El cliente tiene que ser mío
+      const cliente = await client.query(
+        "SELECT id FROM users WHERE id = $1 AND entrenador_id = $2 AND rol = 'cliente'",
+        [user_id, req.user.id]
+      );
+      if (cliente.rows.length === 0) {
+        return res.status(404).json({ error: 'Cliente no encontrado' });
+      }
+    } else {
+      // El grupo tiene que ser mío
+      const grupo = await client.query(
+        'SELECT id FROM groups WHERE id = $1 AND entrenador_id = $2',
+        [group_id, req.user.id]
+      );
+      if (grupo.rows.length === 0) {
+        return res.status(404).json({ error: 'Grupo no encontrado' });
+      }
     }
 
     // Los ejercicios tienen que ser míos
@@ -99,10 +115,10 @@ router.post('/', async (req, res) => {
     // Transacción: se guarda todo junto o no se guarda nada
     await client.query('BEGIN');
     const rutina = await client.query(
-      `INSERT INTO routines (nombre, entrenador_id, user_id)
-       VALUES ($1, $2, $3)
-       RETURNING id, nombre, user_id`,
-      [nombre, req.user.id, user_id]
+      `INSERT INTO routines (nombre, entrenador_id, user_id, group_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, nombre, user_id, group_id`,
+      [nombre, req.user.id, user_id || null, group_id || null]
     );
 
     for (const e of ejercicios) {
