@@ -68,3 +68,12 @@ body {
 .lista li:last-child { border-bottom: 0; }
 .sub { color: #6b7280; font-size: 0.9rem; }
 .inactivo { opacity: 0.5; }
+.fila-ejercicio { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+.fila-ejercicio select, .fila-ejercicio input { padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; }
+.fila-ejercicio select { flex: 2; min-width: 180px; }
+.fila-ejercicio input { flex: 1; min-width: 90px; }
+.btn-peligro { padding: 6px 10px; background: #fdecec; color: #c0262d; border: 0; border-radius: 6px; cursor: pointer; }
+.acciones { display: flex; gap: 8px; }
+.tabla { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.tabla th, .tabla td { text-align: left; padding: 8px; border-bottom: 1px solid #eef0f6; }
+.tabla th { color: #6b7280; font-weight: 600; font-size: 0.9rem; }
