@@ -1,0 +1,70 @@
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  rol VARCHAR(20) NOT NULL CHECK (rol IN ('entrenador', 'cliente')),
+  creado_en TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS groups (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  entrenador_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  creado_en TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS group_members (
+  group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  PRIMARY KEY (group_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS exercises (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  musculo VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS routines (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  entrenador_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+  creado_en TIMESTAMP DEFAULT NOW(),
+  CHECK (
+    (user_id IS NOT NULL AND group_id IS NULL) OR
+    (user_id IS NULL AND group_id IS NOT NULL)
+  )
+);
+
+CREATE TABLE IF NOT EXISTS routine_exercises (
+  id SERIAL PRIMARY KEY,
+  routine_id INTEGER NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
+  exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+  series INTEGER NOT NULL,
+  repeticiones VARCHAR(20) NOT NULL,
+  peso_sugerido NUMERIC(6,2)
+);
+
+CREATE TABLE IF NOT EXISTS progress_logs (
+  id SERIAL PRIMARY KEY,
+  routine_exercise_id INTEGER NOT NULL REFERENCES routine_exercises(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  fecha DATE NOT NULL DEFAULT CURRENT_DATE,
+  peso_real NUMERIC(6,2),
+  series_completadas INTEGER,
+  comentario TEXT
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  group_id INTEGER REFERENCES groups(id) ON DELETE SET NULL,
+  monto NUMERIC(10,2) NOT NULL,
+  metodo VARCHAR(20) NOT NULL CHECK (metodo IN ('efectivo', 'transferencia')),
+  fecha DATE NOT NULL DEFAULT CURRENT_DATE,
+  fecha_vencimiento DATE
+);
