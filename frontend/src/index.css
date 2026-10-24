@@ -123,3 +123,9 @@ body {
 .actividad { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 150px; }
 .barra { width: 120px; height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
 .barra div { height: 100%; background: #16a34a; border-radius: 999px; }
+
+.paneles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+.paneles .card { margin-bottom: 0; }
+.icono.mini { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.btn-borde { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; padding: 10px; border: 1px solid #c7d2fe; border-radius: 8px; color: #1d4ed8; text-decoration: none; font-size: 0.95rem; }
+@media (max-width: 900px) { .paneles { grid-template-columns: 1fr; } }

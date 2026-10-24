@@ -45,7 +45,68 @@ router.get('/', async (req, res) => {
       [req.user.id]
     );
 
-    res.json({ ...resumen.rows[0], recientes: recientes.rows });
+        const grupos = await pool.query(
+      `SELECT g.id, g.nombre, COUNT(gm.user_id)::int AS miembros
+       FROM groups g
+       LEFT JOIN group_members gm ON gm.group_id = g.id
+       WHERE g.entrenador_id = $1
+       GROUP BY g.id
+       ORDER BY g.creado_en DESC
+       LIMIT 4`,
+      [req.user.id]
+    );
+
+    const ultima = await pool.query(
+      `SELECT r.id, r.nombre, u.nombre AS cliente, g.nombre AS grupo
+       FROM routines r
+       LEFT JOIN users u ON u.id = r.user_id
+       LEFT JOIN groups g ON g.id = r.group_id
+       WHERE r.entrenador_id = $1
+       ORDER BY r.creado_en DESC, r.id DESC
+       LIMIT 1`,
+      [req.user.id]
+    );
+
+    let ultimaRutina = null;
+    if (ultima.rows.length > 0) {
+      const ejercicios = await pool.query(
+        `SELECT e.nombre, re.series, re.repeticiones, re.peso_sugerido
+         FROM routine_exercises re
+         JOIN exercises e ON e.id = re.exercise_id
+         WHERE re.routine_id = $1
+         ORDER BY re.id`,
+        [ultima.rows[0].id]
+      );
+      ultimaRutina = { ...ultima.rows[0], ejercicios: ejercicios.rows };
+    }
+
+    // Sesiones de entrenamiento por semana (últimas 8), sumando todos mis clientes
+    const semanas = await pool.query(
+      `SELECT to_char(w.semana, 'DD/MM') AS semana,
+              (SELECT COUNT(*)::int FROM (
+                 SELECT DISTINCT pl.user_id, pl.fecha
+                 FROM progress_logs pl
+                 JOIN users u ON u.id = pl.user_id
+                 WHERE u.entrenador_id = $1
+                   AND pl.fecha >= w.semana::date
+                   AND pl.fecha < w.semana::date + 7
+               ) x) AS sesiones
+       FROM generate_series(
+              date_trunc('week', CURRENT_DATE) - interval '7 weeks',
+              date_trunc('week', CURRENT_DATE),
+              interval '1 week'
+            ) AS w(semana)
+       ORDER BY w.semana`,
+      [req.user.id]
+    );
+
+    res.json({
+      ...resumen.rows[0],
+      recientes: recientes.rows,
+      grupos_lista: grupos.rows,
+      ultima_rutina: ultimaRutina,
+      semanas: semanas.rows,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error del servidor' });
