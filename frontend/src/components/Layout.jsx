@@ -1,4 +1,7 @@
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import {
+  ClipboardList, Dumbbell, LayoutDashboard, LogOut, TrendingUp, Users, UsersRound, Wallet,
+} from 'lucide-react';
 
 const SOLO_ENTRENADOR = ['/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos'];
 const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso'];
@@ -29,23 +32,27 @@ export default function Layout() {
   return (
     <div className="layout">
       <aside className="sidebar">
-        <h2>FitCoach</h2>
+        <h2 className="marca"><Dumbbell size={24} /> FitCoach</h2>
         {esEntrenador ? (
           <>
-            <NavLink to="/panel">Inicio</NavLink>
-            <NavLink to="/clientes">Clientes</NavLink>
-            <NavLink to="/grupos">Grupos</NavLink>
-            <NavLink to="/ejercicios">Ejercicios</NavLink>
-            <NavLink to="/rutinas">Rutinas</NavLink>
-            <NavLink to="/pagos">Pagos</NavLink>
+            <NavLink to="/panel"><LayoutDashboard size={18} /> Inicio</NavLink>
+            <NavLink to="/clientes"><Users size={18} /> Clientes</NavLink>
+            <NavLink to="/grupos"><UsersRound size={18} /> Grupos</NavLink>
+            <NavLink to="/ejercicios"><Dumbbell size={18} /> Ejercicios</NavLink>
+            <NavLink to="/rutinas"><ClipboardList size={18} /> Rutinas</NavLink>
+            <NavLink to="/pagos"><Wallet size={18} /> Pagos</NavLink>
           </>
         ) : (
           <>
-            <NavLink to="/mis-rutinas">Mis rutinas</NavLink>
-            <NavLink to="/mi-progreso">Mi progreso</NavLink>
+            <NavLink to="/mis-rutinas"><ClipboardList size={18} /> Mis rutinas</NavLink>
+            <NavLink to="/mi-progreso"><TrendingUp size={18} /> Mi progreso</NavLink>
           </>
         )}
-        <button className="salir" onClick={salir}>Cerrar sesión</button>
+        <div className="usuario">
+          <strong>{user.nombre}</strong>
+          <span>{esEntrenador ? 'Entrenador' : 'Cliente'}</span>
+        </div>
+        <button className="salir" onClick={salir}><LogOut size={16} /> Cerrar sesión</button>
       </aside>
       <main className="contenido">
         <Outlet />
