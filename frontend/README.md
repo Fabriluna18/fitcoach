@@ -1,16 +1,73 @@
-# React + Vite
+# FitCoach
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+App web para entrenadores personales: gestión de clientes y grupos, rutinas individuales y grupales, seguimiento de progreso con gráficos y control de pagos con alertas de vencimiento.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Entrenador**
+- Alta, baja y reactivación de clientes
+- Grupos de entrenamiento con miembros
+- Biblioteca propia de ejercicios
+- Rutinas para un cliente o para un grupo completo
+- Evolución de peso de cada cliente
+- Pagos en efectivo o transferencia, con alertas de vencidos y por vencer
 
-## React Compiler
+**Cliente**
+- Ve sus rutinas (individuales y de sus grupos)
+- Registra peso, series y comentarios de cada sesión
+- Gráfico de su evolución e historial
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- Frontend: React, Vite, React Router, Recharts
+- Backend: Node.js, Express
+- Base de datos: PostgreSQL
+- Autenticación: JWT y bcrypt
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Decisiones técnicas
+
+- Roles (entrenador y cliente) con middleware de permisos
+- Cada consulta filtra por entrenador: nadie ve datos ajenos
+- Transacciones al guardar rutinas y sesiones
+- Restricciones en la base: una rutina o un pago es de un cliente o de un grupo, nunca de ambos
+
+## Correrlo en local
+
+Requisitos: Node 20 o superior y PostgreSQL.
+
+1. Crear la base y las tablas:
+
+```
+createdb fitcoach
+psql -d fitcoach -f backend/db/schema.sql
+```
+
+2. Backend:
+
+```
+cd backend
+cp .env.example .env   # completar con tus datos
+npm install
+npm run dev
+```
+
+3. Frontend (en otra terminal):
+
+```
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Abrir http://localhost:5173
+
+## Capturas
+
+(Agregar acá las capturas guardadas en la carpeta `docs/`)
+
+## Estructura
+
+- `backend/`: API REST (rutas, middleware y esquema SQL)
+- `frontend/`: aplicación React
+- `docs/`: diseño de referencia y capturas

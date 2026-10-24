@@ -83,3 +83,14 @@ body {
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
 .badge.vencido { background: #fdecec; color: #c0262d; }
 .badge.por-vencer { background: #fef3c7; color: #92400e; }
+.lista li { flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px; gap: 6px; }
+  .sidebar h2 { width: 100%; margin: 0 0 4px; }
+  .sidebar .salir { margin-top: 0; margin-left: auto; }
+  .contenido { padding: 16px; max-width: 100%; }
+  .auth { width: auto; margin: 24px 16px; }
+  .tabla { display: block; overflow-x: auto; white-space: nowrap; }
+}
