@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('../db');
 const verificarToken = require('../middleware/auth');
 const soloCliente = require('../middleware/cliente');
+const progresoDe = require('../progress');
 
 const router = express.Router();
 
@@ -141,6 +142,16 @@ router.get('/history', async (req, res) => {
       [req.user.id]
     );
     res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Mi evolución de peso por ejercicio
+router.get('/progress', async (req, res) => {
+  try {
+    res.json(await progresoDe(req.user.id));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error del servidor' });

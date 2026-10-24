@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const verificarToken = require('../middleware/auth');
 const soloEntrenador = require('../middleware/rol');
+const progresoDe = require('../progress');
 
 const router = express.Router();
 
@@ -75,6 +76,26 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Cliente no encontrado' });
     }
     res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Evolución de uno de mis clientes
+router.get('/:id/progress', async (req, res) => {
+  try {
+    const cliente = await pool.query(
+      "SELECT id, nombre FROM users WHERE id = $1 AND entrenador_id = $2 AND rol = 'cliente'",
+      [req.params.id, req.user.id]
+    );
+    if (cliente.rows.length === 0) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+    res.json({
+      cliente: cliente.rows[0].nombre,
+      datos: await progresoDe(cliente.rows[0].id),
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error del servidor' });
