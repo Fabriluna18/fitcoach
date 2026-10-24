@@ -71,3 +71,16 @@ Abrir http://localhost:5173
 - `backend/`: API REST (rutas, middleware y esquema SQL)
 - `frontend/`: aplicación React
 - `docs/`: diseño de referencia y capturas
+
+## Demo online
+
+- App: https://fitcoach-peach-eta.vercel.app
+
+Cuentas de prueba (datos de ejemplo):
+
+| Rol | Email | Contraseña |
+| --- | --- | --- |
+| Entrenador | enzo@test.com | 123456 |
+| Cliente | laura@test.com | 123456 |
+
+La API corre en el plan gratis de Render, que se duerme tras 15 minutos sin uso: la primera carga puede tardar cerca de un minuto.
