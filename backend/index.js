@@ -26,6 +26,9 @@ app.use('/api/routines', routineRoutes);
 const meRoutes = require('./routes/me');
 app.use('/api/me', meRoutes);
 
+const paymentRoutes = require('./routes/payments');
+app.use('/api/payments', paymentRoutes);
+
 app.get('/', (req, res) => {
   res.json({ mensaje: 'API de FitCoach funcionando' });
 });

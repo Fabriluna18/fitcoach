@@ -1,6 +1,6 @@
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-const SOLO_ENTRENADOR = ['/clientes', '/grupos', '/ejercicios', '/rutinas'];
+const SOLO_ENTRENADOR = ['/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos'];
 const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso'];
 
 export default function Layout() {
@@ -37,6 +37,7 @@ export default function Layout() {
             <NavLink to="/grupos">Grupos</NavLink>
             <NavLink to="/ejercicios">Ejercicios</NavLink>
             <NavLink to="/rutinas">Rutinas</NavLink>
+            <NavLink to="/pagos">Pagos</NavLink>
           </>
         ) : (
           <>

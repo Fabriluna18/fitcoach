@@ -80,3 +80,6 @@ body {
 .ok { color: #15803d; margin: 0 0 12px; }
 .comentario { width: 100%; padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; font-family: inherit; margin-top: 12px; resize: vertical; }
 .fila-ejercicio .nombre { flex: 2; min-width: 180px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.badge.vencido { background: #fdecec; color: #c0262d; }
+.badge.por-vencer { background: #fef3c7; color: #92400e; }

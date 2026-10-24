@@ -10,6 +10,7 @@ import Rutinas from './pages/Rutinas';
 import MisRutinas from './pages/MisRutinas';
 import MiProgreso from './pages/MiProgreso';
 import ProgresoCliente from './pages/ProgresoCliente';
+import Pagos from './pages/Pagos';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/mis-rutinas" element={<MisRutinas />} />
           <Route path="/mi-progreso" element={<MiProgreso />} />
           <Route path="/clientes/:id/progreso" element={<ProgresoCliente />} />
+          <Route path="/pagos" element={<Pagos />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
