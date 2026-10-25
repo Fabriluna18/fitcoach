@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
     );
 
     const recientes = await pool.query(
-      `SELECT u.id, u.nombre, u.email,
+      `SELECT u.id, u.nombre, u.email, u.avatar,
               (SELECT COUNT(DISTINCT pl.fecha)::int FROM progress_logs pl
                WHERE pl.user_id = u.id AND pl.fecha >= CURRENT_DATE - 30) AS sesiones
        FROM users u
@@ -100,8 +100,48 @@ router.get('/', async (req, res) => {
       [req.user.id]
     );
 
+        // Evolución de los últimos 6 meses, para los mini gráficos de las tarjetas.
+    // La adherencia mide los días entrenados en los 30 días previos a cada fecha.
+    const meses = await pool.query(
+      `SELECT (SELECT COUNT(*)::int FROM users
+                WHERE entrenador_id = $1 AND rol = 'cliente' AND activo
+                  AND creado_en::date <= f.fin) AS clientes,
+              (SELECT COUNT(*)::int FROM groups
+                WHERE entrenador_id = $1 AND creado_en::date <= f.fin) AS grupos,
+              (SELECT COUNT(*)::int FROM routines
+                WHERE entrenador_id = $1 AND creado_en::date <= f.fin) AS rutinas,
+              (SELECT COUNT(*)::int FROM (
+                 SELECT DISTINCT pl.user_id, pl.fecha
+                 FROM progress_logs pl
+                 JOIN users u ON u.id = pl.user_id
+                 WHERE u.entrenador_id = $1 AND u.activo
+                   AND pl.fecha > f.fin - 30 AND pl.fecha <= f.fin
+               ) x) AS sesiones
+       FROM (
+         SELECT LEAST(
+                  (date_trunc('month', CURRENT_DATE) + make_interval(months => g + 1) - interval '1 day')::date,
+                  CURRENT_DATE
+                ) AS fin
+         FROM generate_series(-5, 0) AS g
+       ) f
+       ORDER BY f.fin`,
+      [req.user.id]
+    );
+
+    const series = { clientes: [], grupos: [], rutinas: [], adherencia: [] };
+    for (const m of meses.rows) {
+      series.clientes.push(m.clientes);
+      series.grupos.push(m.grupos);
+      series.rutinas.push(m.rutinas);
+      series.adherencia.push(
+        m.clientes > 0 ? Math.min(100, Math.round((100 * m.sesiones) / (m.clientes * 12))) : 0
+      );
+    }
+
     res.json({
       ...resumen.rows[0],
+      adherencia: series.adherencia[series.adherencia.length - 1],
+      series,
       recientes: recientes.rows,
       grupos_lista: grupos.rows,
       ultima_rutina: ultimaRutina,

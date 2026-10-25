@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
 import { Link } from 'react-router-dom';
+import Avatar from '../components/Avatar';
+import SelectorAvatar from '../components/SelectorAvatar';
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
-  const [form, setForm] = useState({ nombre: '', email: '', password: '' });
+  const [form, setForm] = useState({ nombre: '', email: '', password: '', avatar: '' });
   const [error, setError] = useState('');
 
   const recargar = () =>
@@ -52,6 +54,10 @@ export default function Clientes() {
           <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={cambiar} required />
           <input name="email" type="email" placeholder="Email" value={form.email} onChange={cambiar} required />
           <input name="password" type="password" placeholder="Contraseña (mín. 6)" value={form.password} onChange={cambiar} required />
+          <div className="selector-fila">
+            <span className="sub">Avatar (opcional)</span>
+            <SelectorAvatar valor={form.avatar} onChange={(a) => setForm({ ...form, avatar: a })} />
+          </div>
           <button className="btn" type="submit">Agregar</button>
         </form>
       </div>
@@ -64,9 +70,12 @@ export default function Clientes() {
           <ul className="lista">
             {clientes.map((c) => (
               <li key={c.id} className={c.activo ? '' : 'inactivo'}>
-                <div>
-                  <strong>{c.nombre}</strong>
-                  <div className="sub">{c.email}{c.activo ? '' : ' · De baja'}</div>
+                <div className="persona">
+                  <Avatar nombre={c.nombre} avatar={c.avatar} />
+                  <div>
+                    <strong>{c.nombre}</strong>
+                    <div className="sub">{c.email}{c.activo ? '' : ' · De baja'}</div>
+                  </div>
                 </div>
                 <div className="acciones">
                   <Link to={`/clientes/${c.id}/progreso`} className="btn-chico" style={{ textDecoration: 'none' }}>Ver progreso</Link>

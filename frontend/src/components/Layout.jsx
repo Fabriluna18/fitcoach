@@ -1,14 +1,41 @@
+import { useState } from 'react';
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ClipboardList, Dumbbell, LayoutDashboard, LogOut, TrendingUp, Users, UsersRound, Wallet,
+  CalendarDays, ClipboardList, Dumbbell, LayoutDashboard, LayoutGrid, LogOut,
+  MessageCircle, Settings, TrendingUp, Users, UsersRound, Wallet,
 } from 'lucide-react';
+import Avatar from './Avatar';
+import Topbar from './Topbar';
 
-const SOLO_ENTRENADOR = ['/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos'];
+const MENU_ENTRENADOR = [
+  { to: '/panel', texto: 'Inicio', icono: LayoutDashboard },
+  { to: '/clientes', texto: 'Clientes', icono: Users },
+  { to: '/grupos', texto: 'Grupos', icono: UsersRound },
+  { to: '/rutinas', texto: 'Rutinas', icono: ClipboardList },
+  { to: '/ejercicios', texto: 'Ejercicios', icono: Dumbbell },
+  { to: '/progreso', texto: 'Progreso', icono: TrendingUp },
+  { to: '/mensajes', texto: 'Mensajes', icono: MessageCircle },
+  { to: '/calendario', texto: 'Calendario', icono: CalendarDays },
+  { to: '/pagos', texto: 'Pagos', icono: Wallet },
+  { to: '/ajustes', texto: 'Ajustes', icono: Settings },
+];
+
+const MENU_CLIENTE = [
+  { to: '/mis-rutinas', texto: 'Mis rutinas', icono: ClipboardList },
+  { to: '/mi-progreso', texto: 'Mi progreso', icono: TrendingUp },
+];
+
+const PRINCIPALES_MOVIL = ['/panel', '/clientes', '/rutinas', '/pagos'];
+const SOLO_ENTRENADOR = [
+  '/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos',
+  '/progreso', '/mensajes', '/calendario', '/ajustes',
+];
 const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso'];
 
 export default function Layout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [masAbierto, setMasAbierto] = useState(false);
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -23,6 +50,10 @@ export default function Layout() {
     return <Navigate to="/panel" />;
   }
 
+  const menu = esEntrenador ? MENU_ENTRENADOR : MENU_CLIENTE;
+  const principales = esEntrenador ? menu.filter((i) => PRINCIPALES_MOVIL.includes(i.to)) : menu;
+  const secundarios = esEntrenador ? menu.filter((i) => !PRINCIPALES_MOVIL.includes(i.to)) : [];
+
   const salir = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -33,30 +64,51 @@ export default function Layout() {
     <div className="layout">
       <aside className="sidebar">
         <h2 className="marca"><Dumbbell size={24} /> FitCoach</h2>
-        {esEntrenador ? (
-          <>
-            <NavLink to="/panel"><LayoutDashboard size={18} /> Inicio</NavLink>
-            <NavLink to="/clientes"><Users size={18} /> Clientes</NavLink>
-            <NavLink to="/grupos"><UsersRound size={18} /> Grupos</NavLink>
-            <NavLink to="/ejercicios"><Dumbbell size={18} /> Ejercicios</NavLink>
-            <NavLink to="/rutinas"><ClipboardList size={18} /> Rutinas</NavLink>
-            <NavLink to="/pagos"><Wallet size={18} /> Pagos</NavLink>
-          </>
-        ) : (
-          <>
-            <NavLink to="/mis-rutinas"><ClipboardList size={18} /> Mis rutinas</NavLink>
-            <NavLink to="/mi-progreso"><TrendingUp size={18} /> Mi progreso</NavLink>
-          </>
-        )}
+        {menu.map(({ to, texto, icono: Icono }) => (
+          <NavLink key={to} to={to}><Icono size={18} /> {texto}</NavLink>
+        ))}
         <div className="usuario">
-          <strong>{user.nombre}</strong>
-          <span>{esEntrenador ? 'Entrenador' : 'Cliente'}</span>
+          <Avatar nombre={user.nombre} size={36} />
+          <div>
+            <strong>{user.nombre}</strong>
+            <span>{esEntrenador ? 'Entrenador' : 'Cliente'}</span>
+          </div>
         </div>
         <button className="salir" onClick={salir}><LogOut size={16} /> Cerrar sesión</button>
       </aside>
+
       <main className="contenido">
-        <Outlet />
+        <Topbar user={user} esEntrenador={esEntrenador} />
+        <div className="pagina" key={pathname}>
+          <Outlet />
+        </div>
       </main>
+
+      <nav className="nav-movil">
+        {principales.map(({ to, texto, icono: Icono }) => (
+          <NavLink key={to} to={to} onClick={() => setMasAbierto(false)}>
+            <Icono size={20} /><span>{texto}</span>
+          </NavLink>
+        ))}
+        {secundarios.length > 0 ? (
+          <button onClick={() => setMasAbierto(!masAbierto)}>
+            <LayoutGrid size={20} /><span>Más</span>
+          </button>
+        ) : (
+          <button onClick={salir}><LogOut size={20} /><span>Salir</span></button>
+        )}
+      </nav>
+
+      {masAbierto && (
+        <div className="hoja-movil">
+          {secundarios.map(({ to, texto, icono: Icono }) => (
+            <NavLink key={to} to={to} onClick={() => setMasAbierto(false)}>
+              <Icono size={18} /> {texto}
+            </NavLink>
+          ))}
+          <button onClick={salir}><LogOut size={18} /> Cerrar sesión</button>
+        </div>
+      )}
     </div>
   );
 }

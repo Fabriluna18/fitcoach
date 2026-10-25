@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { CalendarClock, ClipboardList, Plus, Users, UsersRound } from 'lucide-react';
+import { ClipboardList, Gauge, Plus, Users, UsersRound } from 'lucide-react';
 import { apiFetch } from '../api/client';
 import Alertas from '../components/Alertas';
 import Avatar from '../components/Avatar';
+import StatCard from '../components/StatCard';
 
 const META_SESIONES = 12;
 
@@ -21,16 +22,24 @@ export default function Panel() {
 
   if (esCliente) return <Navigate to="/mis-rutinas" />;
 
+  const s = datos?.series;
   const tarjetas = datos && [
     {
-      icono: <Users size={22} />, color: 'azul', numero: datos.clientes, etiqueta: 'Clientes activos',
-      extra: datos.clientes_nuevos > 0 ? `+${datos.clientes_nuevos} este mes` : null,
+      icono: <Users size={22} />, color: 'azul', colorLinea: '#2563eb',
+      valor: datos.clientes, etiqueta: 'Clientes activos', serie: s.clientes,
     },
-    { icono: <UsersRound size={22} />, color: 'verde', numero: datos.grupos, etiqueta: 'Grupos' },
-    { icono: <ClipboardList size={22} />, color: 'violeta', numero: datos.rutinas, etiqueta: 'Rutinas asignadas' },
     {
-      icono: <CalendarClock size={22} />, color: 'naranja', numero: datos.pagos_alerta,
-      etiqueta: 'Pagos por vencer o vencidos',
+      icono: <UsersRound size={22} />, color: 'verde', colorLinea: '#16a34a',
+      valor: datos.grupos, etiqueta: 'Grupos activos', serie: s.grupos,
+    },
+    {
+      icono: <ClipboardList size={22} />, color: 'violeta', colorLinea: '#7e22ce',
+      valor: datos.rutinas, etiqueta: 'Rutinas asignadas', serie: s.rutinas,
+    },
+    {
+      icono: <Gauge size={22} />, color: 'naranja', colorLinea: '#ea580c',
+      valor: datos.adherencia, sufijo: '%', enPuntos: true,
+      etiqueta: 'Adherencia promedio', serie: s.adherencia,
     },
   ];
 
@@ -43,19 +52,20 @@ export default function Panel() {
       <p className="sub">Acá tenés un resumen de tu actividad como entrenador.</p>
       {error && <p className="error">{error}</p>}
 
-      {tarjetas && (
+      {tarjetas ? (
         <div className="stats">
-          {tarjetas.map((t) => (
-            <div className="stat" key={t.etiqueta}>
-              <div className={`icono ${t.color}`}>{t.icono}</div>
-              <div>
-                <div className="numero">{t.numero}</div>
-                <div className="etiqueta">{t.etiqueta}</div>
-                {t.extra && <div className="extra">{t.extra}</div>}
-              </div>
-            </div>
+          {tarjetas.map((t, i) => (
+            <StatCard key={t.etiqueta} indice={i} {...t} />
           ))}
         </div>
+      ) : (
+        !error && (
+          <div className="stats">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="stat skeleton" />
+            ))}
+          </div>
+        )
       )}
 
       <div className="paneles">
@@ -116,7 +126,7 @@ export default function Panel() {
               {datos.recientes.map((c) => (
                 <li key={c.id}>
                   <div className="persona">
-                    <Avatar nombre={c.nombre} />
+                    <Avatar nombre={c.nombre} avatar={c.avatar} />
                     <div>
                       <strong>{c.nombre}</strong>
                       <div className="sub">{c.email}</div>
