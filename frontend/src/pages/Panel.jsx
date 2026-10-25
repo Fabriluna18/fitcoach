@@ -4,6 +4,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { ClipboardList, Gauge, Plus, Users, UsersRound } from 'lucide-react';
 import { apiFetch } from '../api/client';
 import Alertas from '../components/Alertas';
+import AlertasRutinas from '../components/AlertasRutinas';
 import Avatar from '../components/Avatar';
 import StatCard from '../components/StatCard';
 
@@ -88,6 +89,11 @@ export default function Panel() {
             </div>
           )}
         </div>
+        
+      <div className="card">
+        <h3>Rutinas por vencer o vencidas</h3>
+        <AlertasRutinas />
+      </div>
 
         <div className="card">
           <div className="encabezado-card">

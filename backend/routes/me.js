@@ -3,6 +3,7 @@ const pool = require('../db');
 const verificarToken = require('../middleware/auth');
 const soloCliente = require('../middleware/cliente');
 const progresoDe = require('../progress');
+const { hoy, estadoDe } = require('../fechas');
 
 const router = express.Router();
 
@@ -11,32 +12,38 @@ router.use(verificarToken, soloCliente);
 // Una rutina es mía si es individual para mí o de un grupo del que soy miembro
 const ACCESO = `(r.user_id = $1 OR r.group_id IN (SELECT group_id FROM group_members WHERE user_id = $1))`;
 
-// Mis rutinas (individuales y de mis grupos)
+const CAMPOS = `
+  r.id, r.nombre, r.group_id, g.nombre AS grupo,
+  to_char(r.fecha_inicio, 'YYYY-MM-DD') AS fecha_inicio,
+  to_char(r.fecha_fin, 'YYYY-MM-DD') AS fecha_fin,
+  (r.archivada_en IS NOT NULL) AS archivada`;
+
+// Mis rutinas (individuales y de mis grupos), con su estado
 router.get('/routines', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT r.id, r.nombre, r.user_id, r.group_id, g.nombre AS grupo,
-              COUNT(re.id)::int AS ejercicios
+      `SELECT ${CAMPOS}, COUNT(re.id)::int AS ejercicios
        FROM routines r
        LEFT JOIN groups g ON g.id = r.group_id
        LEFT JOIN routine_exercises re ON re.routine_id = r.id
        WHERE ${ACCESO}
        GROUP BY r.id, g.nombre
-       ORDER BY r.creado_en DESC`,
+       ORDER BY r.fecha_inicio DESC, r.id DESC`,
       [req.user.id]
     );
-    res.json(result.rows);
+    const hoyStr = hoy();
+    res.json(result.rows.map((r) => ({ ...r, estado: estadoDe(r, hoyStr) })));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error del servidor' });
   }
 });
 
-// Una rutina con sus ejercicios y mi último peso en cada uno
+// Una rutina con sus bloques, ejercicios y mi último peso en cada uno
 router.get('/routines/:id', async (req, res) => {
   try {
     const rutina = await pool.query(
-      `SELECT r.id, r.nombre, r.group_id, g.nombre AS grupo
+      `SELECT ${CAMPOS}
        FROM routines r
        LEFT JOIN groups g ON g.id = r.group_id
        WHERE r.id = $2 AND ${ACCESO}`,
@@ -46,26 +53,44 @@ router.get('/routines/:id', async (req, res) => {
       return res.status(404).json({ error: 'Rutina no encontrada' });
     }
 
+    const bloques = await pool.query(
+      `SELECT id, tipo, orden, vueltas, descanso_seg
+       FROM routine_blocks WHERE routine_id = $1 ORDER BY orden, id`,
+      [req.params.id]
+    );
+
+    // El último peso se busca por ejercicio (no por rutina), así sigue
+    // apareciendo aunque la rutina se haya renovado
     const ejercicios = await pool.query(
-      `SELECT re.id, e.nombre, e.musculo, re.series, re.repeticiones, re.peso_sugerido,
-              (SELECT pl.peso_real FROM progress_logs pl
-               WHERE pl.routine_exercise_id = re.id AND pl.user_id = $2
+      `SELECT re.id, re.block_id, e.nombre, e.musculo, re.series, re.repeticiones, re.peso_sugerido,
+              (SELECT pl.peso_real
+               FROM progress_logs pl
+               JOIN routine_exercises re2 ON re2.id = pl.routine_exercise_id
+               WHERE pl.user_id = $2 AND re2.exercise_id = re.exercise_id AND pl.peso_real IS NOT NULL
                ORDER BY pl.fecha DESC, pl.id DESC LIMIT 1) AS ultimo_peso
        FROM routine_exercises re
        JOIN exercises e ON e.id = re.exercise_id
        WHERE re.routine_id = $1
-       ORDER BY re.id`,
+       ORDER BY re.orden, re.id`,
       [req.params.id, req.user.id]
     );
 
-    res.json({ ...rutina.rows[0], ejercicios: ejercicios.rows });
+    const r = rutina.rows[0];
+    res.json({
+      ...r,
+      estado: estadoDe(r),
+      bloques: bloques.rows.map((b) => ({
+        ...b,
+        ejercicios: ejercicios.rows.filter((e) => e.block_id === b.id),
+      })),
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error del servidor' });
   }
 });
 
-// Guardar una sesión de entrenamiento
+// Guardar una sesión de entrenamiento (solo en rutinas activas)
 router.post('/routines/:id/sesion', async (req, res) => {
   const { comentario, registros } = req.body;
 
@@ -88,11 +113,17 @@ router.post('/routines/:id/sesion', async (req, res) => {
   try {
     // La rutina tiene que ser mía
     const rutina = await client.query(
-      `SELECT r.id FROM routines r WHERE r.id = $2 AND ${ACCESO}`,
+      `SELECT ${CAMPOS}
+       FROM routines r
+       LEFT JOIN groups g ON g.id = r.group_id
+       WHERE r.id = $2 AND ${ACCESO}`,
       [req.user.id, req.params.id]
     );
     if (rutina.rows.length === 0) {
       return res.status(404).json({ error: 'Rutina no encontrada' });
+    }
+    if (estadoDe(rutina.rows[0]) !== 'activa') {
+      return res.status(400).json({ error: 'Solo podés registrar sesiones en rutinas activas' });
     }
 
     // Los ejercicios tienen que ser de esa rutina

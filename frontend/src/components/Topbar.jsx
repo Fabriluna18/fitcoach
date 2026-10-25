@@ -12,15 +12,28 @@ const ACCIONES = [
   { texto: 'Cita', to: '/calendario' },
 ];
 
+const textoRutina = (a) => {
+  if (a.estado === 'vencida') return `Rutina vencida hace ${-a.dias} ${a.dias === -1 ? 'día' : 'días'}`;
+  if (a.dias === 0) return 'Rutina vence hoy';
+  return `Rutina vence en ${a.dias} ${a.dias === 1 ? 'día' : 'días'}`;
+};
+
 export default function Topbar({ user, esEntrenador }) {
   const [abierto, setAbierto] = useState(null);
-  const [alertas, setAlertas] = useState([]);
+  const [pagos, setPagos] = useState([]);
+  const [rutinas, setRutinas] = useState([]);
   const ref = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!esEntrenador) return;
-    apiFetch('/payments/alerts').then(setAlertas).catch(() => {});
+    Promise.all([
+      apiFetch('/payments/alerts').catch(() => []),
+      apiFetch('/routines/alerts').catch(() => []),
+    ]).then(([p, r]) => {
+      setPagos(p);
+      setRutinas(r);
+    });
   }, [esEntrenador]);
 
   useEffect(() => {
@@ -36,6 +49,7 @@ export default function Topbar({ user, esEntrenador }) {
     navigate(to);
   };
   const alternar = (nombre) => setAbierto(abierto === nombre ? null : nombre);
+  const total = pagos.length + rutinas.length;
 
   return (
     <div className="topbar" ref={ref}>
@@ -57,28 +71,37 @@ export default function Topbar({ user, esEntrenador }) {
           <div className="relativo">
             <button className="campana" onClick={() => alternar('campana')} aria-label="Notificaciones">
               <Bell size={20} />
-              {alertas.length > 0 && <span className="punto">{alertas.length}</span>}
+              {total > 0 && <span className="punto">{total}</span>}
             </button>
             {abierto === 'campana' && (
               <div className="menu-flotante ancho">
                 <strong>Notificaciones</strong>
-                {alertas.length === 0 ? (
+                {total === 0 ? (
                   <p className="sub">No hay avisos nuevos.</p>
                 ) : (
                   <ul className="lista">
-                    {alertas.map((a) => (
-                      <li key={`${a.tipo}-${a.id}`}>
+                    {pagos.map((a) => (
+                      <li key={`p-${a.tipo}-${a.id}`}>
                         <div>
                           <strong>{a.nombre}</strong>
-                          <div className="sub">
-                            Pago {a.dias < 0 ? 'vencido' : 'por vencer'} · {a.vence}
-                          </div>
+                          <div className="sub">Pago {a.dias < 0 ? 'vencido' : 'por vencer'} · {a.vence}</div>
+                        </div>
+                      </li>
+                    ))}
+                    {rutinas.map((a) => (
+                      <li key={`r-${a.tipo}-${a.id}`}>
+                        <div>
+                          <strong>{a.nombre}</strong>
+                          <div className="sub">{textoRutina(a)} · {a.vence}</div>
                         </div>
                       </li>
                     ))}
                   </ul>
                 )}
-                <button className="btn-chico" onClick={() => ir('/pagos')}>Ver pagos</button>
+                <div className="acciones">
+                  <button className="btn-chico" onClick={() => ir('/pagos')}>Ver pagos</button>
+                  <button className="btn-chico" onClick={() => ir('/rutinas')}>Ver rutinas</button>
+                </div>
               </div>
             )}
           </div>

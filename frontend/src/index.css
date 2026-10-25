@@ -241,3 +241,38 @@ body {
 
 .aviso { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 14px; margin-top: 14px; }
 .aviso p { margin: 4px 0 10px; }
+
+/* ===== Día 14 (parte 2): menú fijo y contenido centrado ===== */
+@media (min-width: 769px) {
+  .sidebar { position: sticky; top: 0; height: 100vh; height: 100dvh; align-self: flex-start; overflow-y: auto; flex-shrink: 0; }
+  .contenido { max-width: none; min-width: 0; padding: 24px 40px 48px; }
+  .contenido > .topbar, .contenido > .pagina { max-width: 1280px; margin-left: auto; margin-right: auto; }
+}
+
+/* ===== Cronómetro ===== */
+@keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+.crono { position: fixed; right: 20px; bottom: 20px; z-index: 35; }
+.crono-pill { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border: 0; border-radius: 999px; background: #1d4ed8; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 8px 24px rgba(29, 78, 216, 0.35); font-variant-numeric: tabular-nums; transition: transform 0.15s ease; }
+.crono-pill:hover { transform: translateY(-2px); }
+.crono.fin .crono-pill { background: #16a34a; animation: latido 1s ease-in-out infinite; }
+.crono-panel { width: 290px; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22); animation: flotante 0.2s ease-out; }
+.crono-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.crono-cabecera strong { display: flex; align-items: center; gap: 6px; }
+.crono-x { background: none; border: 0; cursor: pointer; color: #6b7280; padding: 4px; border-radius: 6px; }
+.crono-x:hover { background: #f1f3f9; }
+.crono-tiempo { text-align: center; font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.crono.fin .crono-tiempo { color: #16a34a; }
+.crono-barra { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin: 8px 0 14px; }
+.crono-barra div { height: 100%; background: #1d4ed8; border-radius: 999px; transition: width 0.3s linear; }
+.crono-presets { display: flex; flex-direction: column; gap: 6px; }
+.crono-presets button { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 0; border-radius: 10px; background: #eef2ff; color: #1d4ed8; cursor: pointer; font-size: 0.95rem; transition: background 0.2s ease, transform 0.15s ease; }
+.crono-presets button:hover { background: #dbe3fb; }
+.crono-presets button:active { transform: scale(0.97); }
+.crono-controles { display: flex; gap: 8px; margin-top: 10px; }
+.crono-controles button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border: 0; border-radius: 10px; background: #1d4ed8; color: white; cursor: pointer; font-size: 0.95rem; }
+.crono-controles button.sec { background: #e8ecf8; color: #1d4ed8; }
+@media (max-width: 768px) {
+  .crono { right: 12px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  .crono-panel { width: min(290px, calc(100vw - 24px)); }
+}
