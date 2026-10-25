@@ -75,3 +75,37 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS activo BOOLEAN NOT NULL DEFAULT TRUE;
 ALTER TABLE exercises ADD COLUMN IF NOT EXISTS entrenador_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
 ALTER TABLE payments ADD COLUMN IF NOT EXISTS entrenador_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(30);
+
+-- Día 14: rutinas con bloques, duración e historial
+ALTER TABLE routines ADD COLUMN IF NOT EXISTS fecha_inicio DATE;
+UPDATE routines SET fecha_inicio = creado_en::date WHERE fecha_inicio IS NULL;
+ALTER TABLE routines ALTER COLUMN fecha_inicio SET DEFAULT CURRENT_DATE;
+ALTER TABLE routines ALTER COLUMN fecha_inicio SET NOT NULL;
+ALTER TABLE routines ADD COLUMN IF NOT EXISTS fecha_fin DATE;
+ALTER TABLE routines ADD COLUMN IF NOT EXISTS archivada_en TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS routine_blocks (
+  id SERIAL PRIMARY KEY,
+  routine_id INTEGER NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
+  tipo VARCHAR(20) NOT NULL DEFAULT 'normal' CHECK (tipo IN ('normal', 'biserie', 'triserie', 'circuito')),
+  orden INTEGER NOT NULL DEFAULT 0,
+  vueltas INTEGER NOT NULL DEFAULT 1,
+  descanso_seg INTEGER NOT NULL DEFAULT 90
+);
+
+ALTER TABLE routine_exercises ADD COLUMN IF NOT EXISTS block_id INTEGER REFERENCES routine_blocks(id) ON DELETE CASCADE;
+ALTER TABLE routine_exercises ADD COLUMN IF NOT EXISTS orden INTEGER NOT NULL DEFAULT 0;
+
+-- Las rutinas viejas pasan a tener un bloque "normal" por ejercicio
+DO $$
+DECLARE
+  r RECORD;
+  nuevo INTEGER;
+BEGIN
+  FOR r IN SELECT id, routine_id, series FROM routine_exercises WHERE block_id IS NULL ORDER BY id LOOP
+    INSERT INTO routine_blocks (routine_id, tipo, orden, vueltas, descanso_seg)
+    VALUES (r.routine_id, 'normal', r.id, r.series, 90)
+    RETURNING id INTO nuevo;
+    UPDATE routine_exercises SET block_id = nuevo, orden = 0 WHERE id = r.id;
+  END LOOP;
+END $$;

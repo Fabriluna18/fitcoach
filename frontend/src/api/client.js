@@ -12,7 +12,10 @@ export async function apiFetch(ruta, opciones = {}) {
   });
   const datos = await respuesta.json();
   if (!respuesta.ok) {
-    throw new Error(datos.error || 'Error en la solicitud');
+    const error = new Error(datos.error || 'Error en la solicitud');
+    error.codigo = datos.codigo;
+    error.datos = datos;
+    throw error;
   }
   return datos;
 }

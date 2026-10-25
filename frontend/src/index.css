@@ -216,3 +216,28 @@ body {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .sparkline-linea { stroke-dashoffset: 0; }
 }
+
+/* ===== Día 14: rutinas con bloques ===== */
+.badge.activa { background: #dcfce7; color: #15803d; }
+.badge.programada { background: #dbeafe; color: #1d4ed8; }
+.badge.finalizada { background: #e5e7eb; color: #4b5563; }
+
+.pestanas { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.pestanas button { padding: 8px 14px; border: 0; border-radius: 999px; background: #e8ecf8; color: #1d4ed8; cursor: pointer; font-size: 0.95rem; transition: background 0.2s ease, color 0.2s ease; }
+.pestanas button.activa { background: #1d4ed8; color: white; }
+
+.campo { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: #6b7280; flex: 1; min-width: 150px; }
+.campo input, .campo select { padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; color: #111827; }
+
+.bloque { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; margin-bottom: 12px; background: #fafbff; animation: subir 0.25s ease-out; }
+.bloque-cabecera { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
+.bloque-cabecera > select { padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; }
+.campo-mini { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: #6b7280; }
+.campo-mini input { width: 110px; padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; }
+
+.bloque-detalle { margin-top: 16px; }
+.bloque-titulo { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.badge-tipo { background: #eef2ff; color: #3730a3; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+
+.aviso { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 14px; margin-top: 14px; }
+.aviso p { margin: 4px 0 10px; }
