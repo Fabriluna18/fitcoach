@@ -7,6 +7,7 @@ import Alertas from '../components/Alertas';
 import AlertasRutinas from '../components/AlertasRutinas';
 import Avatar from '../components/Avatar';
 import StatCard from '../components/StatCard';
+import ProximasCitas from '../components/ProximasCitas';
 
 const META_SESIONES = 12;
 
@@ -90,9 +91,12 @@ export default function Panel() {
           )}
         </div>
         
-      <div className="card">
-        <h3>Rutinas por vencer o vencidas</h3>
-        <AlertasRutinas />
+      <div className="paneles">
+        <div className="card">
+          <h3>Rutinas por vencer o vencidas</h3>
+          <AlertasRutinas />
+        </div>
+        <ProximasCitas />
       </div>
 
         <div className="card">

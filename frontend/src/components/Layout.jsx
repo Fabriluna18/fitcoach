@@ -22,6 +22,7 @@ const MENU_ENTRENADOR = [
 
 const MENU_CLIENTE = [
   { to: '/mis-rutinas', texto: 'Mis rutinas', icono: ClipboardList },
+  { to: '/mis-citas', texto: 'Mis citas', icono: CalendarDays },
   { to: '/mi-progreso', texto: 'Mi progreso', icono: TrendingUp },
 ];
 
@@ -30,7 +31,7 @@ const SOLO_ENTRENADOR = [
   '/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos',
   '/progreso', '/mensajes', '/calendario', '/ajustes',
 ];
-const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso'];
+const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso', '/mis-citas'];
 
 export default function Layout() {
   const navigate = useNavigate();

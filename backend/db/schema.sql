@@ -114,3 +114,23 @@ END $$;
 ALTER TABLE exercises ADD COLUMN IF NOT EXISTS video_url TEXT;
 ALTER TABLE exercises ADD COLUMN IF NOT EXISTS video_tipo VARCHAR(10) CHECK (video_tipo IN ('link', 'archivo'));
 ALTER TABLE users ADD COLUMN IF NOT EXISTS foto_url TEXT;
+
+-- Día 16: citas y calendario
+ALTER TABLE routine_blocks ALTER COLUMN descanso_seg SET DEFAULT 180;
+
+CREATE TABLE IF NOT EXISTS appointments (
+  id SERIAL PRIMARY KEY,
+  entrenador_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+  titulo VARCHAR(100) NOT NULL,
+  tipo VARCHAR(20) NOT NULL DEFAULT 'otra' CHECK (tipo IN ('evaluacion', 'seguimiento', 'clase', 'otra')),
+  inicio TIMESTAMPTZ NOT NULL,
+  fin TIMESTAMPTZ NOT NULL,
+  notas TEXT,
+  creado_en TIMESTAMP DEFAULT NOW(),
+  CHECK ((user_id IS NOT NULL AND group_id IS NULL) OR (user_id IS NULL AND group_id IS NOT NULL)),
+  CHECK (fin > inicio)
+);
+
+CREATE INDEX IF NOT EXISTS idx_appointments_entrenador_inicio ON appointments (entrenador_id, inicio);

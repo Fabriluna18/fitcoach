@@ -292,3 +292,55 @@ body {
 .progreso-subida { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
 .progreso-subida div { height: 100%; background: #1d4ed8; transition: width 0.2s linear; }
 .foto-ajustes { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ===== Día 16: calendario y citas ===== */
+.cal-cabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.cal-cabecera h3 { margin: 0; }
+.cal-nav { display: flex; gap: 6px; }
+.cal-nav button { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: #e8ecf8; color: #1d4ed8; cursor: pointer; font-size: 0.95rem; transition: background 0.2s ease, transform 0.15s ease; }
+.cal-nav button:hover { background: #dbe3fb; }
+.cal-nav button:active { transform: scale(0.94); }
+
+.cal-grilla { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-dia-nombre { text-align: center; font-size: 0.8rem; font-weight: 600; color: #6b7280; padding: 4px 0; }
+.cal-celda { min-height: 88px; display: flex; flex-direction: column; align-items: stretch; gap: 3px; padding: 6px; border: 1px solid #eef0f6; border-radius: 10px; background: white; text-align: left; cursor: pointer; font-family: inherit; min-width: 0; transition: background 0.15s ease, border-color 0.15s ease; }
+.cal-celda:hover { background: #f3f6ff; }
+.cal-celda.otro { opacity: 0.45; }
+.cal-celda.hoy .cal-num { background: #1d4ed8; color: white; }
+.cal-celda.elegido { border-color: #1d4ed8; box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.18); }
+.cal-num { align-self: flex-start; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.85rem; font-weight: 600; }
+.cal-chips { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cal-mas { font-size: 0.7rem; color: #6b7280; }
+
+.chip { display: block; font-size: 0.72rem; line-height: 1.35; padding: 1px 6px; border-radius: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip.tipo-evaluacion, .etiqueta-tipo.tipo-evaluacion { background: #dbeafe; color: #1e40af; }
+.chip.tipo-seguimiento, .etiqueta-tipo.tipo-seguimiento { background: #dcfce7; color: #166534; }
+.chip.tipo-clase, .etiqueta-tipo.tipo-clase { background: #f3e8ff; color: #6b21a8; }
+.chip.tipo-otra, .etiqueta-tipo.tipo-otra { background: #e5e7eb; color: #374151; }
+
+.punto-tipo { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.punto-tipo.tipo-evaluacion { background: #2563eb; }
+.punto-tipo.tipo-seguimiento { background: #16a34a; }
+.punto-tipo.tipo-clase { background: #9333ea; }
+.punto-tipo.tipo-otra { background: #6b7280; }
+
+.cita-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 12px 0; border-bottom: 1px solid #eef0f6; flex-wrap: wrap; }
+.cita-item:last-child { border-bottom: 0; }
+.cita-hora { font-weight: 700; font-variant-numeric: tabular-nums; }
+.etiqueta-tipo { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; margin-left: 6px; }
+
+.fecha-chip { width: 46px; height: 50px; border-radius: 10px; background: #eef2ff; color: #1d4ed8; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; flex-shrink: 0; }
+.fecha-chip span { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em; }
+.fecha-chip strong { font-size: 1.2rem; }
+.hora { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: #374151; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 768px) {
+  .cal-celda { min-height: 56px; padding: 4px; }
+  .cal-chips { flex-direction: row; flex-wrap: wrap; gap: 3px; }
+  .cal-celda .chip { font-size: 0; padding: 0; width: 8px; height: 8px; border-radius: 50%; }
+  .cal-celda .chip.tipo-evaluacion { background: #2563eb; }
+  .cal-celda .chip.tipo-seguimiento { background: #16a34a; }
+  .cal-celda .chip.tipo-clase { background: #9333ea; }
+  .cal-celda .chip.tipo-otra { background: #6b7280; }
+  .cal-mas { display: none; }
+}

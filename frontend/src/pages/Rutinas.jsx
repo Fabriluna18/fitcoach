@@ -12,7 +12,7 @@ const TIPOS = {
 const ETIQUETA_ESTADO = { activa: 'Activa', programada: 'Programada', finalizada: 'Finalizada' };
 
 const filaVacia = () => ({ exercise_id: '', repeticiones: '8-10', peso_sugerido: '' });
-const bloqueNuevo = () => ({ tipo: 'normal', vueltas: '4', descanso_seg: '90', ejercicios: [filaVacia()] });
+const bloqueNuevo = () => ({ tipo: 'normal', vueltas: '4', descanso_seg: '180', ejercicios: [filaVacia()] });
 
 const hoyISO = () => new Date().toLocaleDateString('en-CA');
 const fechaCorta = (iso) => {

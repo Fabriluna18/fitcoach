@@ -189,4 +189,29 @@ router.get('/progress', async (req, res) => {
   }
 });
 
+// Mis próximas citas (individuales y de mis grupos)
+router.get('/appointments', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT a.id, a.titulo, a.tipo, a.notas,
+              g.nombre AS grupo, e.nombre AS entrenador,
+              to_char(a.inicio AT TIME ZONE 'America/Argentina/Buenos_Aires', 'YYYY-MM-DD') AS fecha,
+              to_char(a.inicio AT TIME ZONE 'America/Argentina/Buenos_Aires', 'HH24:MI') AS hora_inicio,
+              to_char(a.fin AT TIME ZONE 'America/Argentina/Buenos_Aires', 'HH24:MI') AS hora_fin
+       FROM appointments a
+       JOIN users e ON e.id = a.entrenador_id
+       LEFT JOIN groups g ON g.id = a.group_id
+       WHERE (a.user_id = $1 OR a.group_id IN (SELECT group_id FROM group_members WHERE user_id = $1))
+         AND a.fin >= NOW()
+       ORDER BY a.inicio
+       LIMIT 50`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 module.exports = router;

@@ -13,6 +13,8 @@ import ProgresoCliente from './pages/ProgresoCliente';
 import Pagos from './pages/Pagos';
 import Proximamente from './pages/Proximamente';
 import Ajustes from './pages/Ajustes';
+import Calendario from './pages/Calendario';
+import MisCitas from './pages/MisCitas';
 
 export default function App() {
   return (
@@ -32,7 +34,8 @@ export default function App() {
           <Route path="/pagos" element={<Pagos />} />
           <Route path="/progreso" element={<Proximamente titulo="Progreso" dia={18} />} />
           <Route path="/mensajes" element={<Proximamente titulo="Mensajes" dia={17} />} />
-          <Route path="/calendario" element={<Proximamente titulo="Calendario" dia={16} />} />
+          <Route path="/calendario" element={<Calendario />} />
+          <Route path="/mis-citas" element={<MisCitas />} />
           <Route path="/ajustes" element={<Ajustes />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" />} />
