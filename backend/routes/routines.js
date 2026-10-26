@@ -212,7 +212,7 @@ router.get('/:id', async (req, res) => {
       [req.params.id]
     );
     const ejercicios = await pool.query(
-      `SELECT re.id, re.block_id, re.exercise_id, e.nombre, e.musculo,
+      `SELECT re.id, re.block_id, re.exercise_id, e.nombre, e.musculo, e.video_url, e.video_tipo,
               re.series, re.repeticiones, re.peso_sugerido
        FROM routine_exercises re
        JOIN exercises e ON e.id = re.exercise_id

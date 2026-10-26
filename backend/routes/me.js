@@ -62,7 +62,7 @@ router.get('/routines/:id', async (req, res) => {
     // El último peso se busca por ejercicio (no por rutina), así sigue
     // apareciendo aunque la rutina se haya renovado
     const ejercicios = await pool.query(
-      `SELECT re.id, re.block_id, e.nombre, e.musculo, re.series, re.repeticiones, re.peso_sugerido,
+      `SELECT re.id, re.block_id, e.nombre, e.musculo, e.video_url, e.video_tipo, re.series, re.repeticiones, re.peso_sugerido,
               (SELECT pl.peso_real
                FROM progress_logs pl
                JOIN routine_exercises re2 ON re2.id = pl.routine_exercise_id

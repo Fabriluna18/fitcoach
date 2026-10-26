@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const jwt = require('jsonwebtoken');
+const { esDeMiCuenta } = require('../cloudinary');
 const verificarToken = require('../middleware/auth');
 
 const router = express.Router();
@@ -67,7 +68,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       token,
-      user: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol },
+      user: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol, foto_url: user.foto_url },
     });
   } catch (error) {
     console.error(error);
@@ -78,7 +79,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', verificarToken, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, nombre, email, rol FROM users WHERE id = $1',
+      'SELECT id, nombre, email, rol, foto_url FROM users WHERE id = $1',
       [req.user.id]
     );
     res.json(result.rows[0]);
@@ -87,5 +88,26 @@ router.get('/me', verificarToken, async (req, res) => {
     res.status(500).json({ error: 'Error del servidor' });
   }
 });
+
+// El entrenador pone o quita su foto o logo
+router.put('/me/foto', verificarToken, async (req, res) => {
+  if (req.user.rol !== 'entrenador') {
+    return res.status(403).json({ error: 'Solo los entrenadores pueden cambiar la foto' });
+  }
+
+  const { foto_url } = req.body;
+  if (foto_url && !esDeMiCuenta(foto_url, 'image')) {
+    return res.status(400).json({ error: 'La foto no es válida' });
+  }
+
+  try {
+    await pool.query('UPDATE users SET foto_url = $1 WHERE id = $2', [foto_url || null, req.user.id]);
+    res.json({ foto_url: foto_url || null });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 
 module.exports = router;

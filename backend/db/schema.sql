@@ -109,3 +109,8 @@ BEGIN
     UPDATE routine_exercises SET block_id = nuevo, orden = 0 WHERE id = r.id;
   END LOOP;
 END $$;
+
+-- Día 15: videos de ejercicios y foto del entrenador
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS video_url TEXT;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS video_tipo VARCHAR(10) CHECK (video_tipo IN ('link', 'archivo'));
+ALTER TABLE users ADD COLUMN IF NOT EXISTS foto_url TEXT;

@@ -107,7 +107,7 @@ export default function Topbar({ user, esEntrenador }) {
           </div>
         </>
       )}
-      <Avatar nombre={user.nombre} size={40} />
+      <Avatar nombre={user.nombre} foto={user.foto_url} size={40} />
     </div>
   );
 }

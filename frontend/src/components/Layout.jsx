@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   CalendarDays, ClipboardList, Dumbbell, LayoutDashboard, LayoutGrid, LogOut,
@@ -36,6 +36,13 @@ export default function Layout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [masAbierto, setMasAbierto] = useState(false);
+  const [, refrescar] = useState(0);
+
+  useEffect(() => {
+    const alActualizar = () => refrescar((n) => n + 1);
+    window.addEventListener('user-actualizado', alActualizar);
+    return () => window.removeEventListener('user-actualizado', alActualizar);
+  }, []);
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -68,7 +75,7 @@ export default function Layout() {
           <NavLink key={to} to={to}><Icono size={18} /> {texto}</NavLink>
         ))}
         <div className="usuario">
-          <Avatar nombre={user.nombre} size={36} />
+          <Avatar nombre={user.nombre} foto={user.foto_url} size={36} />
           <div>
             <strong>{user.nombre}</strong>
             <span>{esEntrenador ? 'Entrenador' : 'Cliente'}</span>

@@ -1,15 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const COLORES = ['#2563eb', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#db2777'];
 
-export default function Avatar({ nombre, avatar, size = 42 }) {
+export default function Avatar({ nombre, avatar, foto, size = 42 }) {
   const [fallo, setFallo] = useState(false);
+  const src = foto || (avatar ? `/avatars/${avatar}.png` : null);
 
-  if (avatar && !fallo) {
+  useEffect(() => {
+    setFallo(false);
+  }, [src]);
+
+  if (src && !fallo) {
     return (
       <img
         className="avatar"
-        src={`/avatars/${avatar}.png`}
+        src={src}
         alt={nombre}
         style={{ width: size, height: size, objectFit: 'cover' }}
         onError={() => setFallo(true)}

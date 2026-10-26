@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Video } from 'lucide-react';
 import { apiFetch } from '../api/client';
+import EditorVideo from '../components/EditorVideo';
+import VideoBoton from '../components/VideoBoton';
 
 export default function Ejercicios() {
   const [ejercicios, setEjercicios] = useState([]);
   const [form, setForm] = useState({ nombre: '', musculo: '', descripcion: '' });
+  const [editando, setEditando] = useState(null);
   const [error, setError] = useState('');
 
   const recargar = () =>
@@ -50,6 +54,7 @@ export default function Ejercicios() {
           <input name="descripcion" placeholder="Descripción (opcional)" value={form.descripcion} onChange={cambiar} />
           <button className="btn" type="submit">Agregar</button>
         </form>
+        <p className="sub">Después de crearlo, tocá <strong>Video</strong> para sumarle un link o subir tu propio video.</p>
       </div>
 
       <div className="card">
@@ -59,12 +64,23 @@ export default function Ejercicios() {
         ) : (
           <ul className="lista">
             {ejercicios.map((ej) => (
-              <li key={ej.id}>
-                <div>
-                  <strong>{ej.nombre}</strong>
-                  <div className="sub">{ej.musculo || 'Sin músculo'}{ej.descripcion ? ` · ${ej.descripcion}` : ''}</div>
+              <li key={ej.id} style={{ display: 'block' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <div>
+                    <strong>{ej.nombre}</strong>
+                    <VideoBoton url={ej.video_url} tipo={ej.video_tipo} titulo={ej.nombre} />
+                    <div className="sub">{ej.musculo || 'Sin músculo'}{ej.descripcion ? ` · ${ej.descripcion}` : ''}</div>
+                  </div>
+                  <div className="acciones">
+                    <button className="btn-chico con-icono" onClick={() => setEditando(editando === ej.id ? null : ej.id)}>
+                      <Video size={14} /> {ej.video_url ? 'Cambiar video' : 'Video'}
+                    </button>
+                    <button className="btn-peligro" onClick={() => borrar(ej.id)}>Borrar</button>
+                  </div>
                 </div>
-                <button className="btn-peligro" onClick={() => borrar(ej.id)}>Borrar</button>
+                {editando === ej.id && (
+                  <EditorVideo ejercicio={ej} onCambio={recargar} />
+                )}
               </li>
             ))}
           </ul>

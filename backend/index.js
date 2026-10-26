@@ -33,6 +33,9 @@ app.use('/api/payments', paymentRoutes);
 const dashboardRoutes = require('./routes/dashboard');
 app.use('/api/dashboard', dashboardRoutes);
 
+const uploadRoutes = require('./routes/uploads');
+app.use('/api/uploads', uploadRoutes);
+
 app.get('/', (req, res) => {
   res.json({ mensaje: 'API de FitCoach funcionando' });
 });

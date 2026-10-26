@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Timer } from 'lucide-react';
 import { apiFetch } from '../api/client';
 import Cronometro from '../components/Cronometro';
+import VideoBoton from '../components/VideoBoton';
 import useCronometro, { formatoTiempo } from '../hooks/useCronometro';
 
 const NOMBRE_TIPO = { normal: 'Ejercicio suelto', biserie: 'Biserie', triserie: 'Triserie', circuito: 'Circuito' };
@@ -167,6 +168,7 @@ export default function MisRutinas() {
                     <div className="fila-ejercicio" key={ej.id}>
                       <div className="nombre">
                         <strong>{ej.nombre}</strong>
+                        <VideoBoton url={ej.video_url} tipo={ej.video_tipo} titulo={ej.nombre} />
                         <div className="sub">
                           Plan: {ej.repeticiones} reps
                           {ej.peso_sugerido ? ` · ${Number(ej.peso_sugerido)} kg` : ''}
@@ -194,7 +196,7 @@ export default function MisRutinas() {
                     <tbody>
                       {b.ejercicios.map((ej) => (
                         <tr key={ej.id}>
-                          <td>{ej.nombre}</td>
+                          <td>{ej.nombre}<VideoBoton url={ej.video_url} tipo={ej.video_tipo} titulo={ej.nombre} /></td>
                           <td>{ej.musculo || '-'}</td>
                           <td>{ej.repeticiones}</td>
                           <td>{ej.peso_sugerido ? `${Number(ej.peso_sugerido)} kg` : '-'}</td>

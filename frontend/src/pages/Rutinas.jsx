@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
+import VideoBoton from '../components/VideoBoton';
 
 const TIPOS = {
   normal: { nombre: 'Ejercicio suelto' },
@@ -420,7 +421,7 @@ export default function Rutinas() {
                 <tbody>
                   {b.ejercicios.map((e) => (
                     <tr key={e.id}>
-                      <td>{e.nombre}</td>
+                      <td>{e.nombre}<VideoBoton url={e.video_url} tipo={e.video_tipo} titulo={e.nombre} /></td>
                       <td>{e.musculo || '-'}</td>
                       <td>{e.repeticiones}</td>
                       <td>{e.peso_sugerido ? `${Number(e.peso_sugerido)} kg` : '-'}</td>
