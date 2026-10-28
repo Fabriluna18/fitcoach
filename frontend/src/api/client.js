@@ -11,7 +11,14 @@ export async function apiFetch(ruta, opciones = {}) {
     },
   });
   const datos = await respuesta.json();
+
   if (!respuesta.ok) {
+    // Sesión vencida o cuenta dada de baja: se vuelve al login
+    if (respuesta.status === 401 && token && !ruta.startsWith('/auth/login')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/login') window.location.href = '/login';
+    }
     const error = new Error(datos.error || 'Error en la solicitud');
     error.codigo = datos.codigo;
     error.datos = datos;

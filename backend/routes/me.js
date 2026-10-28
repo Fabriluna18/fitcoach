@@ -139,8 +139,8 @@ router.post('/routines/:id/sesion', async (req, res) => {
     await client.query('BEGIN');
     for (const r of registros) {
       await client.query(
-        `INSERT INTO progress_logs (routine_exercise_id, user_id, peso_real, series_completadas, comentario)
-         VALUES ($1, $2, $3, $4, $5)`,
+        `INSERT INTO progress_logs (routine_exercise_id, user_id, fecha, peso_real, series_completadas, comentario)
+         VALUES ($1, $2, (NOW() AT TIME ZONE 'America/Argentina/Buenos_Aires')::date, $3, $4, $5)`,
         [r.routine_exercise_id, req.user.id, r.peso_real ?? null, r.series_completadas ?? null, comentario || null]
       );
     }

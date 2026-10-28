@@ -390,3 +390,21 @@ body {
   .chat-volver { display: inline-flex; }
   .burbuja { max-width: 88%; }
 }
+
+/* ===== Día 18: progreso y ajustes ===== */
+.select-periodo { padding: 8px 12px; border: 1px solid #ccd; border-radius: 8px; font-size: 0.9rem; background: white; }
+.ayuda-grafico { font-size: 0.8rem; color: #6b7280; margin: 8px 0 0; }
+
+.adh { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.adh .barra { width: 90px; }
+.barra.media div { background: #f59e0b; }
+.barra.baja div { background: #dc2626; }
+.tendencia.sube { color: #15803d; font-weight: 600; }
+.tabla td .persona { display: flex; align-items: center; gap: 10px; }
+
+.panel-eliminar { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 14px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.panel-eliminar input { padding: 10px; border: 1px solid #ccd; border-radius: 8px; font-size: 1rem; }
+.panel-eliminar .btn-peligro:disabled { opacity: 0.5; cursor: default; }
+
+.form-ajustes { display: flex; flex-direction: column; gap: 12px; max-width: 420px; }
+.form-ajustes input:disabled { background: #f3f4f6; color: #6b7280; }

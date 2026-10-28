@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ClipboardList, Gauge, Plus, Users, UsersRound } from 'lucide-react';
 import { apiFetch } from '../api/client';
 import Alertas from '../components/Alertas';
 import AlertasRutinas from '../components/AlertasRutinas';
 import Avatar from '../components/Avatar';
-import StatCard from '../components/StatCard';
+import ProgresoGeneralChart from '../components/ProgresoGeneralChart';
 import ProximasCitas from '../components/ProximasCitas';
+import StatCard from '../components/StatCard';
 
 const META_SESIONES = 12;
 
@@ -45,7 +45,6 @@ export default function Panel() {
     },
   ];
 
-  const hayActividad = datos && datos.semanas.some((s) => s.sesiones > 0);
   const ultima = datos?.ultima_rutina;
 
   return (
@@ -71,33 +70,7 @@ export default function Panel() {
       )}
 
       <div className="paneles">
-        <div className="card">
-          <h3>Actividad de tus clientes</h3>
-          <p className="sub">Sesiones de entrenamiento registradas por semana.</p>
-          {!datos || !hayActividad ? (
-            <p className="sub">Todavía no hay sesiones registradas por tus clientes.</p>
-          ) : (
-            <div style={{ width: '100%', height: 240 }}>
-              <ResponsiveContainer>
-                <LineChart data={datos.semanas} margin={{ top: 10, right: 16, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eef0f6" />
-                  <XAxis dataKey="semana" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip formatter={(valor) => [valor, 'Sesiones']} labelFormatter={(l) => `Semana del ${l}`} />
-                  <Line type="monotone" dataKey="sesiones" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-        
-      <div className="paneles">
-        <div className="card">
-          <h3>Rutinas por vencer o vencidas</h3>
-          <AlertasRutinas />
-        </div>
-        <ProximasCitas />
-      </div>
+        <ProgresoGeneralChart />
 
         <div className="card">
           <div className="encabezado-card">
@@ -158,6 +131,14 @@ export default function Panel() {
           <h3>Pagos por vencer o vencidos</h3>
           <Alertas />
         </div>
+      </div>
+
+      <div className="paneles">
+        <div className="card">
+          <h3>Rutinas por vencer o vencidas</h3>
+          <AlertasRutinas />
+        </div>
+        <ProximasCitas />
       </div>
 
       <div className="card">

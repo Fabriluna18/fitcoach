@@ -11,11 +11,11 @@ import MisRutinas from './pages/MisRutinas';
 import MiProgreso from './pages/MiProgreso';
 import ProgresoCliente from './pages/ProgresoCliente';
 import Pagos from './pages/Pagos';
-import Proximamente from './pages/Proximamente';
 import Ajustes from './pages/Ajustes';
 import Calendario from './pages/Calendario';
 import MisCitas from './pages/MisCitas';
 import Mensajes from './pages/Mensajes';
+import Progreso from './pages/Progreso';
 
 export default function App() {
   return (
@@ -33,7 +33,7 @@ export default function App() {
           <Route path="/mi-progreso" element={<MiProgreso />} />
           <Route path="/clientes/:id/progreso" element={<ProgresoCliente />} />
           <Route path="/pagos" element={<Pagos />} />
-          <Route path="/progreso" element={<Proximamente titulo="Progreso" dia={18} />} />
+          <Route path="/progreso" element={<Progreso />} />
           <Route path="/mensajes" element={<Mensajes />} />
           <Route path="/calendario" element={<Calendario />} />
           <Route path="/mis-citas" element={<MisCitas />} />

@@ -112,4 +112,38 @@ router.get('/:id/progress', async (req, res) => {
   }
 });
 
+// Eliminar definitivamente un cliente (solo si ya está de baja y se confirma con su nombre)
+router.delete('/:id', async (req, res) => {
+  const confirmar = typeof req.body?.confirmar === 'string' ? req.body.confirmar.trim() : '';
+
+  try {
+    const result = await pool.query(
+      "SELECT id, nombre, activo FROM users WHERE id = $1 AND entrenador_id = $2 AND rol = 'cliente'",
+      [req.params.id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+    const cliente = result.rows[0];
+
+    if (cliente.activo) {
+      return res.status(409).json({ error: 'Primero dá de baja al cliente. Eliminarlo es definitivo.' });
+    }
+    if (confirmar.toLowerCase() !== cliente.nombre.trim().toLowerCase()) {
+      return res.status(400).json({ error: 'Escribí el nombre exacto del cliente para confirmar' });
+    }
+
+    // Se borran su cuenta, sus rutinas, su progreso, sus mensajes y sus citas.
+    // Los pagos quedan en el historial, sin nombre asociado.
+    await pool.query("DELETE FROM users WHERE id = $1 AND entrenador_id = $2 AND rol = 'cliente'", [
+      cliente.id,
+      req.user.id,
+    ]);
+    res.json({ mensaje: 'Cliente eliminado' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 module.exports = router;

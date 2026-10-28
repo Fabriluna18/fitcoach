@@ -18,7 +18,9 @@ router.get('/', async (req, res) => {
            WHERE entrenador_id = $1 AND rol = 'cliente'
              AND creado_en >= date_trunc('month', NOW())) AS clientes_nuevos,
          (SELECT COUNT(*)::int FROM groups WHERE entrenador_id = $1) AS grupos,
-         (SELECT COUNT(*)::int FROM routines WHERE entrenador_id = $1) AS rutinas,
+         (SELECT COUNT(*)::int FROM routines
+           WHERE entrenador_id = $1 AND archivada_en IS NULL
+             AND (fecha_fin IS NULL OR fecha_fin >= (NOW() AT TIME ZONE 'America/Argentina/Buenos_Aires')::date)) AS rutinas,
          (SELECT COUNT(*)::int FROM (
             SELECT MAX(p.fecha_vencimiento) AS vence
             FROM payments p

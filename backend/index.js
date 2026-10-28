@@ -42,6 +42,9 @@ app.use('/api/appointments', appointmentRoutes);
 const messageRoutes = require('./routes/messages');
 app.use('/api/messages', messageRoutes);
 
+const statsRoutes = require('./routes/stats');
+app.use('/api/stats', statsRoutes);
+
 app.get('/', (req, res) => {
   res.json({ mensaje: 'API de FitCoach funcionando' });
 });

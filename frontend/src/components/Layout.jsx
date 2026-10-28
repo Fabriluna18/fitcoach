@@ -26,12 +26,16 @@ const MENU_CLIENTE = [
   { to: '/mis-citas', texto: 'Mis citas', icono: CalendarDays },
   { to: '/mensajes', texto: 'Mensajes', icono: MessageCircle },
   { to: '/mi-progreso', texto: 'Mi progreso', icono: TrendingUp },
+  { to: '/ajustes', texto: 'Ajustes', icono: Settings },
 ];
 
-const PRINCIPALES_MOVIL = ['/panel', '/clientes', '/rutinas', '/pagos'];
+// Lo que va fijo en la barra de abajo del celular (el resto queda en "Más")
+const PRINCIPALES_ENTRENADOR = ['/panel', '/clientes', '/rutinas', '/pagos'];
+const PRINCIPALES_CLIENTE = ['/mis-rutinas', '/mis-citas', '/mensajes', '/mi-progreso'];
+
 const SOLO_ENTRENADOR = [
   '/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos',
-  '/progreso', '/calendario', '/ajustes',
+  '/progreso', '/calendario',
 ];
 const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso', '/mis-citas'];
 
@@ -64,8 +68,10 @@ export default function Layout() {
   }
 
   const menu = esEntrenador ? MENU_ENTRENADOR : MENU_CLIENTE;
-  const principales = esEntrenador ? menu.filter((i) => PRINCIPALES_MOVIL.includes(i.to)) : menu;
-  const secundarios = esEntrenador ? menu.filter((i) => !PRINCIPALES_MOVIL.includes(i.to)) : [];
+  const fijos = esEntrenador ? PRINCIPALES_ENTRENADOR : PRINCIPALES_CLIENTE;
+  const principales = menu.filter((i) => fijos.includes(i.to));
+  const secundarios = menu.filter((i) => !fijos.includes(i.to));
+  const mensajesEnMas = secundarios.some((i) => i.to === '/mensajes');
 
   const salir = () => {
     localStorage.removeItem('token');
@@ -107,14 +113,10 @@ export default function Layout() {
             {to === '/mensajes' && noLeidos > 0 && <span className="badge-menu flotante">{noLeidos}</span>}
           </NavLink>
         ))}
-        {secundarios.length > 0 ? (
-          <button onClick={() => setMasAbierto(!masAbierto)}>
-            <LayoutGrid size={20} /><span>Más</span>
-            {noLeidos > 0 && <span className="badge-menu flotante">{noLeidos}</span>}
-          </button>
-        ) : (
-          <button onClick={salir}><LogOut size={20} /><span>Salir</span></button>
-        )}
+        <button onClick={() => setMasAbierto(!masAbierto)}>
+          <LayoutGrid size={20} /><span>Más</span>
+          {mensajesEnMas && noLeidos > 0 && <span className="badge-menu flotante">{noLeidos}</span>}
+        </button>
       </nav>
 
       {masAbierto && (

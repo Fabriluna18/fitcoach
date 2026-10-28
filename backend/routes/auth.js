@@ -60,6 +60,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
+    if (!user.activo) {
+      return res.status(403).json({ error: 'Tu cuenta está dada de baja. Hablá con tu entrenador.' });
+    }
+
     const token = jwt.sign(
       { id: user.id, rol: user.rol },
       process.env.JWT_SECRET,
@@ -103,6 +107,64 @@ router.put('/me/foto', verificarToken, async (req, res) => {
   try {
     await pool.query('UPDATE users SET foto_url = $1 WHERE id = $2', [foto_url || null, req.user.id]);
     res.json({ foto_url: foto_url || null });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Cambiar mi nombre
+router.put('/me', verificarToken, async (req, res) => {
+  const nombre = typeof req.body.nombre === 'string' ? req.body.nombre.trim() : '';
+  if (nombre.length < 2 || nombre.length > 100) {
+    return res.status(400).json({ error: 'El nombre tiene que tener entre 2 y 100 letras' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET nombre = $1 WHERE id = $2 AND activo
+       RETURNING id, nombre, email, rol, foto_url, avatar`,
+      [nombre, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(403).json({ error: 'Tu cuenta está dada de baja' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Cambiar mi contraseña
+router.put('/password', verificarToken, async (req, res) => {
+  const { actual, nueva } = req.body;
+
+  if (typeof actual !== 'string' || typeof nueva !== 'string' || !actual || !nueva) {
+    return res.status(400).json({ error: 'Completá la contraseña actual y la nueva' });
+  }
+  if (nueva.length < 6 || nueva.length > 72) {
+    return res.status(400).json({ error: 'La contraseña nueva debe tener entre 6 y 72 caracteres' });
+  }
+  if (nueva === actual) {
+    return res.status(400).json({ error: 'La contraseña nueva tiene que ser distinta de la actual' });
+  }
+
+  try {
+    const result = await pool.query('SELECT password_hash, activo FROM users WHERE id = $1', [req.user.id]);
+    const usuario = result.rows[0];
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!usuario.activo) return res.status(403).json({ error: 'Tu cuenta está dada de baja' });
+
+    const coincide = await bcrypt.compare(actual, usuario.password_hash);
+    if (!coincide) {
+      // 400 y no 401, para que la app no cierre la sesión por un error de tipeo
+      return res.status(400).json({ error: 'La contraseña actual no es correcta' });
+    }
+
+    const hash = await bcrypt.hash(nueva, 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
+    res.json({ mensaje: 'Contraseña actualizada' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error del servidor' });
