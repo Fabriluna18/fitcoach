@@ -134,3 +134,17 @@ CREATE TABLE IF NOT EXISTS appointments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_appointments_entrenador_inicio ON appointments (entrenador_id, inicio);
+
+-- Día 17: mensajes entre entrenador y cliente
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  entrenador_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  cliente_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  remitente_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  texto TEXT NOT NULL CHECK (char_length(texto) BETWEEN 1 AND 1000),
+  leido_en TIMESTAMPTZ,
+  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (remitente_id IN (entrenador_id, cliente_id))
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_conversacion ON messages (entrenador_id, cliente_id, id);

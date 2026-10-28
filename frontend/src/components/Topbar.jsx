@@ -18,7 +18,7 @@ const textoRutina = (a) => {
   return `Rutina vence en ${a.dias} ${a.dias === 1 ? 'día' : 'días'}`;
 };
 
-export default function Topbar({ user, esEntrenador }) {
+export default function Topbar({ user, esEntrenador, noLeidos = 0 }) {
   const [abierto, setAbierto] = useState(null);
   const [pagos, setPagos] = useState([]);
   const [rutinas, setRutinas] = useState([]);
@@ -49,7 +49,7 @@ export default function Topbar({ user, esEntrenador }) {
     navigate(to);
   };
   const alternar = (nombre) => setAbierto(abierto === nombre ? null : nombre);
-  const total = pagos.length + rutinas.length;
+  const total = pagos.length + rutinas.length + noLeidos;
 
   return (
     <div className="topbar" ref={ref}>
@@ -80,6 +80,16 @@ export default function Topbar({ user, esEntrenador }) {
                   <p className="sub">No hay avisos nuevos.</p>
                 ) : (
                   <ul className="lista">
+                    {noLeidos > 0 && (
+                      <li>
+                        <div>
+                          <strong>
+                            {noLeidos === 1 ? 'Tenés 1 mensaje sin leer' : `Tenés ${noLeidos} mensajes sin leer`}
+                          </strong>
+                          <div className="sub">De tus clientes</div>
+                        </div>
+                      </li>
+                    )}
                     {pagos.map((a) => (
                       <li key={`p-${a.tipo}-${a.id}`}>
                         <div>
@@ -98,7 +108,8 @@ export default function Topbar({ user, esEntrenador }) {
                     ))}
                   </ul>
                 )}
-                <div className="acciones">
+                <div className="acciones" style={{ flexWrap: 'wrap' }}>
+                  <button className="btn-chico" onClick={() => ir('/mensajes')}>Ver mensajes</button>
                   <button className="btn-chico" onClick={() => ir('/pagos')}>Ver pagos</button>
                   <button className="btn-chico" onClick={() => ir('/rutinas')}>Ver rutinas</button>
                 </div>

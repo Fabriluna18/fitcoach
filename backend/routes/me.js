@@ -214,4 +214,98 @@ router.get('/appointments', async (req, res) => {
   }
 });
 
+// Cantidad de mensajes sin leer de mi entrenador (para el globito del menú)
+router.get('/messages/resumen', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*)::int AS no_leidos
+       FROM messages
+       WHERE cliente_id = $1 AND remitente_id = entrenador_id AND leido_en IS NULL`,
+      [req.user.id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Mi conversación con mi entrenador (con ?despues=ID trae solo los nuevos)
+router.get('/messages', async (req, res) => {
+  const despues = Number.parseInt(req.query.despues, 10) || 0;
+
+  try {
+    const entrenador = await pool.query(
+      `SELECT e.id, e.nombre, e.foto_url
+       FROM users u
+       JOIN users e ON e.id = u.entrenador_id
+       WHERE u.id = $1`,
+      [req.user.id]
+    );
+    if (entrenador.rows.length === 0) {
+      return res.json({ entrenador: null, mensajes: [] });
+    }
+    const e = entrenador.rows[0];
+
+    // Al abrir la conversación, lo que mandó el entrenador queda como leído
+    await pool.query(
+      `UPDATE messages SET leido_en = NOW()
+       WHERE entrenador_id = $1 AND cliente_id = $2 AND remitente_id = $1 AND leido_en IS NULL`,
+      [e.id, req.user.id]
+    );
+
+    const mensajes = await pool.query(
+      `SELECT id, remitente_id, texto, creado_en FROM (
+         SELECT id, remitente_id, texto, creado_en FROM messages
+         WHERE entrenador_id = $1 AND cliente_id = $2 AND id > $3
+         ORDER BY id DESC LIMIT 200
+       ) t
+       ORDER BY id`,
+      [e.id, req.user.id, despues]
+    );
+    res.json({ entrenador: e, mensajes: mensajes.rows });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// Mandarle un mensaje a mi entrenador
+router.post('/messages', async (req, res) => {
+  const texto = typeof req.body.texto === 'string' ? req.body.texto.trim() : '';
+  if (!texto || texto.length > 1000) {
+    return res.status(400).json({ error: 'El mensaje tiene que tener entre 1 y 1000 letras' });
+  }
+
+  try {
+    const yo = await pool.query('SELECT entrenador_id, activo FROM users WHERE id = $1', [req.user.id]);
+    const u = yo.rows[0];
+    if (!u || !u.entrenador_id) {
+      return res.status(400).json({ error: 'Todavía no tenés un entrenador asignado' });
+    }
+    if (!u.activo) {
+      return res.status(403).json({ error: 'Tu cuenta está dada de baja' });
+    }
+
+    const reciente = await pool.query(
+      "SELECT COUNT(*)::int AS n FROM messages WHERE remitente_id = $1 AND creado_en > NOW() - interval '1 minute'",
+      [req.user.id]
+    );
+    if (reciente.rows[0].n >= 20) {
+      return res.status(429).json({ error: 'Estás enviando muchos mensajes seguidos. Esperá un momento.' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO messages (entrenador_id, cliente_id, remitente_id, texto)
+       VALUES ($1, $2, $2, $3)
+       RETURNING id`,
+      [u.entrenador_id, req.user.id, texto]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 module.exports = router;

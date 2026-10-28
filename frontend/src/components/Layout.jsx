@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import Avatar from './Avatar';
 import Topbar from './Topbar';
+import useNoLeidos from '../hooks/useNoLeidos';
 
 const MENU_ENTRENADOR = [
   { to: '/panel', texto: 'Inicio', icono: LayoutDashboard },
@@ -23,13 +24,14 @@ const MENU_ENTRENADOR = [
 const MENU_CLIENTE = [
   { to: '/mis-rutinas', texto: 'Mis rutinas', icono: ClipboardList },
   { to: '/mis-citas', texto: 'Mis citas', icono: CalendarDays },
+  { to: '/mensajes', texto: 'Mensajes', icono: MessageCircle },
   { to: '/mi-progreso', texto: 'Mi progreso', icono: TrendingUp },
 ];
 
 const PRINCIPALES_MOVIL = ['/panel', '/clientes', '/rutinas', '/pagos'];
 const SOLO_ENTRENADOR = [
   '/clientes', '/grupos', '/ejercicios', '/rutinas', '/pagos',
-  '/progreso', '/mensajes', '/calendario', '/ajustes',
+  '/progreso', '/calendario', '/ajustes',
 ];
 const SOLO_CLIENTE = ['/mis-rutinas', '/mi-progreso', '/mis-citas'];
 
@@ -38,18 +40,21 @@ export default function Layout() {
   const { pathname } = useLocation();
   const [masAbierto, setMasAbierto] = useState(false);
   const [, refrescar] = useState(0);
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const esEntrenador = user?.rol === 'entrenador';
+  const noLeidos = useNoLeidos(
+    esEntrenador ? '/messages/resumen' : '/me/messages/resumen',
+    Boolean(token && user)
+  );
 
   useEffect(() => {
     const alActualizar = () => refrescar((n) => n + 1);
     window.addEventListener('user-actualizado', alActualizar);
     return () => window.removeEventListener('user-actualizado', alActualizar);
   }, []);
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   if (!token || !user) return <Navigate to="/login" />;
-
-  const esEntrenador = user.rol === 'entrenador';
 
   if (!esEntrenador && SOLO_ENTRENADOR.some((p) => pathname.startsWith(p))) {
     return <Navigate to="/mis-rutinas" />;
@@ -73,7 +78,10 @@ export default function Layout() {
       <aside className="sidebar">
         <h2 className="marca"><Dumbbell size={24} /> FitCoach</h2>
         {menu.map(({ to, texto, icono: Icono }) => (
-          <NavLink key={to} to={to}><Icono size={18} /> {texto}</NavLink>
+          <NavLink key={to} to={to}>
+            <Icono size={18} /> {texto}
+            {to === '/mensajes' && noLeidos > 0 && <span className="badge-menu">{noLeidos}</span>}
+          </NavLink>
         ))}
         <div className="usuario">
           <Avatar nombre={user.nombre} foto={user.foto_url} size={36} />
@@ -86,7 +94,7 @@ export default function Layout() {
       </aside>
 
       <main className="contenido">
-        <Topbar user={user} esEntrenador={esEntrenador} />
+        <Topbar user={user} esEntrenador={esEntrenador} noLeidos={noLeidos} />
         <div className="pagina" key={pathname}>
           <Outlet />
         </div>
@@ -96,11 +104,13 @@ export default function Layout() {
         {principales.map(({ to, texto, icono: Icono }) => (
           <NavLink key={to} to={to} onClick={() => setMasAbierto(false)}>
             <Icono size={20} /><span>{texto}</span>
+            {to === '/mensajes' && noLeidos > 0 && <span className="badge-menu flotante">{noLeidos}</span>}
           </NavLink>
         ))}
         {secundarios.length > 0 ? (
           <button onClick={() => setMasAbierto(!masAbierto)}>
             <LayoutGrid size={20} /><span>Más</span>
+            {noLeidos > 0 && <span className="badge-menu flotante">{noLeidos}</span>}
           </button>
         ) : (
           <button onClick={salir}><LogOut size={20} /><span>Salir</span></button>
@@ -112,6 +122,7 @@ export default function Layout() {
           {secundarios.map(({ to, texto, icono: Icono }) => (
             <NavLink key={to} to={to} onClick={() => setMasAbierto(false)}>
               <Icono size={18} /> {texto}
+              {to === '/mensajes' && noLeidos > 0 && <span className="badge-menu">{noLeidos}</span>}
             </NavLink>
           ))}
           <button onClick={salir}><LogOut size={18} /> Cerrar sesión</button>
