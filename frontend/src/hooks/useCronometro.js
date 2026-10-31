@@ -60,7 +60,7 @@ export default function useCronometro() {
   useEffect(() => {
     if (!corriendo) return;
     const anterior = document.title;
-    document.title = `⏱ ${formatoTiempo(restante)} · FitCoach`;
+    document.title = `⏱ ${formatoTiempo(restante)} · Velytra`;
     return () => {
       document.title = anterior;
     };

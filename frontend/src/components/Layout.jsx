@@ -7,6 +7,8 @@ import {
 import Avatar from './Avatar';
 import Topbar from './Topbar';
 import useNoLeidos from '../hooks/useNoLeidos';
+import Logo from './Logo';
+import { MARCA } from '../marca';
 
 const MENU_ENTRENADOR = [
   { to: '/panel', texto: 'Inicio', icono: LayoutDashboard },
@@ -82,7 +84,7 @@ export default function Layout() {
   return (
     <div className="layout">
       <aside className="sidebar">
-        <h2 className="marca"><Dumbbell size={24} /> FitCoach</h2>
+        <h2 className="marca"><Logo size={32} /> {MARCA.nombre}</h2>
         {menu.map(({ to, texto, icono: Icono }) => (
           <NavLink key={to} to={to}>
             <Icono size={18} /> {texto}

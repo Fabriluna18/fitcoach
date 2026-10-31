@@ -408,3 +408,94 @@ body {
 
 .form-ajustes { display: flex; flex-direction: column; gap: 12px; max-width: 420px; }
 .form-ajustes input:disabled { background: #f3f4f6; color: #6b7280; }
+
+/* ===== Día 20: marca y login ===== */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@keyframes acercar { from { transform: scale(1.04); opacity: 0.6; } to { transform: none; opacity: 1; } }
+
+.logo { display: block; flex-shrink: 0; border-radius: 22%; }
+.sidebar .marca .logo { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35); }
+
+.auth-pagina { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); background: white; }
+
+.auth-hero { position: relative; overflow: hidden; background: #e3effc; display: flex; align-items: flex-start; }
+.auth-hero::before { content: ''; position: absolute; inset: 0; background: url('/login-hero.jpg') center bottom / cover no-repeat; animation: acercar 1200ms var(--ease-out) both; }
+.auth-hero-texto { position: relative; z-index: 1; padding: 56px 56px 0; max-width: 560px; color: #0b1f4d; }
+.auth-hero-texto > * { animation: subir 450ms var(--ease-out) both; }
+.auth-hero-texto > :nth-child(2) { animation-delay: 70ms; }
+.auth-hero-texto > :nth-child(3) { animation-delay: 140ms; }
+.auth-marca { display: flex; align-items: center; gap: 14px; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 20px; }
+.auth-hero-texto h2 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 18px; color: #1e3a8a; font-weight: 700; }
+.auth-hero-texto ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.auth-hero-texto li { display: flex; align-items: flex-start; gap: 8px; color: #1e3a8a; font-size: 0.98rem; }
+.auth-hero-texto li svg { color: #16a34a; flex-shrink: 0; margin-top: 2px; }
+
+.auth-panel { display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+.auth-caja { width: min(400px, 100%); animation: subir 400ms var(--ease-out) 80ms both; }
+.auth-caja h1 { font-size: 1.9rem; margin: 0 0 6px; color: #0f172a; letter-spacing: -0.02em; }
+.auth-caja .sub { margin: 0 0 24px; }
+.auth-marca-movil { display: none; }
+
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.campo-auth { display: flex; flex-direction: column; gap: 6px; }
+.campo-auth label { font-size: 0.9rem; font-weight: 600; color: #334155; }
+.campo-auth input, .campo-auth select { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 1rem; color: #0f172a; background: white; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.campo-auth input:focus, .campo-auth select:focus { outline: none; border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15); }
+.con-ojo { position: relative; }
+.con-ojo input { padding-right: 46px; }
+.ojo { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: none; color: #64748b; cursor: pointer; }
+.ojo:hover { background: #f1f5f9; color: #1d4ed8; }
+
+.btn-auth { padding: 13px; border: 0; border-radius: 10px; background: #1d4ed8; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 160ms var(--ease-out), background-color 160ms ease; }
+.btn-auth:hover { background: #1e40af; }
+.btn-auth:active { transform: scale(0.97); }
+.btn-auth:disabled { opacity: 0.7; cursor: default; }
+.auth-error { margin: 0; padding: 10px 12px; border-radius: 10px; background: #fef2f2; color: #b91c1c; font-size: 0.9rem; }
+.auth-aviso { margin: 0; font-size: 0.85rem; color: #475569; text-align: center; }
+.auth-pie { margin: 20px 0 0; text-align: center; color: #475569; }
+.auth-pie a { color: #1d4ed8; font-weight: 600; text-decoration: none; }
+.auth-pie a:hover { text-decoration: underline; }
+
+.auth-demo { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+.auth-demo > span { display: flex; align-items: center; gap: 10px; color: #64748b; font-size: 0.85rem; }
+.auth-demo > span::before, .auth-demo > span::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+.auth-demo > div { display: flex; gap: 8px; flex-wrap: wrap; }
+.auth-demo button { flex: 1; min-width: 150px; padding: 11px 12px; border: 1px solid #c7d2fe; border-radius: 10px; background: #eef2ff; color: #1d4ed8; font-weight: 600; cursor: pointer; transition: transform 160ms var(--ease-out), background-color 160ms ease; }
+.auth-demo button:hover { background: #e0e7ff; }
+.auth-demo button:active { transform: scale(0.97); }
+.auth-demo button:disabled { opacity: 0.6; cursor: default; }
+
+@media (max-height: 720px) { .auth-hero-texto ul { display: none; } }
+@media (max-width: 860px) {
+  .auth-pagina { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .auth-hero { min-height: 190px; }
+  .auth-hero::before { background-position: center 88%; }
+  .auth-hero-texto { display: none; }
+  .auth-panel { align-items: flex-start; padding: 28px 20px 40px; }
+  .auth-marca-movil { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 1.4rem; font-weight: 800; color: #0b1f4d; }
+}
+
+/* ===== Pulido de movimiento (principios de Emil Kowalski) ===== */
+.pagina { animation: aparecer 150ms var(--ease-out); }
+
+.stat { animation-duration: 300ms; animation-timing-function: var(--ease-out); animation-delay: calc(var(--i, 0) * 50ms); }
+.sparkline-linea { animation: trazar 600ms var(--ease-out) 150ms forwards; }
+.sparkline-area { animation: aparecer 400ms ease-out 200ms both; }
+.barra div { animation-duration: 400ms; animation-timing-function: var(--ease-out); }
+
+.btn, .btn-chico, .btn-peligro, .sidebar .salir { transition: transform 160ms var(--ease-out), background-color 160ms ease, box-shadow 160ms ease; }
+.btn:active, .btn-chico:active, .btn-peligro:active { transform: scale(0.97); }
+
+.sidebar a { transition: background-color 160ms ease; }
+.sidebar a:hover { transform: none; }
+.lista li { transition: background-color 120ms ease; }
+
+/* Las tarjetas ya no se levantan, y el efecto de hover solo existe con mouse */
+.stat:hover, .paneles .card:hover { transform: none; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); }
+@media (hover: hover) and (pointer: fine) {
+  .stat:hover { box-shadow: 0 6px 20px rgba(29, 78, 216, 0.12); }
+}
